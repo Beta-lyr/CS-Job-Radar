@@ -26,5 +26,9 @@ venv/
 .DS_Store
 Thumbs.db
 
+# workspace lockfiles (only root lockfile is needed)
+apps/*/package-lock.json
+packages/*/package-lock.json
+
 # debug
 npm-debug.log*
