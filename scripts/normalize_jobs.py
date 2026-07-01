@@ -1,0 +1,176 @@
+"""标准化脚本：处理 raw_jobs -> 写入 jobs + job_skills。"""
+
+import os
+import re
+import sys
+from datetime import datetime, timezone
+
+from sqlalchemy import text
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "services", "crawler"))
+from storage.db import get_session
+
+
+def parse_salary(text: str) -> dict:
+    if not text:
+        return {"type": "unknown"}
+    text = text.strip()
+    if text == "面议":
+        return {"type": "negotiable"}
+
+    m = re.search(r"(\d+)-(\d+)K", text, re.IGNORECASE)
+    if m:
+        lo, hi = int(m.group(1)) * 1000, int(m.group(2)) * 1000
+        months = 12
+        mm = re.search(r"(\d+)[薪]", text)
+        if mm:
+            months = int(mm.group(1))
+        return {
+            "min": lo, "max": hi, "median": (lo + hi) // 2,
+            "months": months, "type": "monthly",
+        }
+
+    m = re.search(r"(\d+)-(\d+)万/年", text)
+    if m:
+        lo, hi = int(m.group(1)), int(m.group(2))
+        return {
+            "min": round(lo * 10000 / 12), "max": round(hi * 10000 / 12),
+            "median": round((lo + hi) * 10000 / 24), "months": 12, "type": "yearly",
+        }
+
+    m = re.search(r"(\d+)/天", text)
+    if m:
+        return {"type": "intern_daily"}
+
+    return {"type": "unknown"}
+
+
+def normalize_city(raw: str) -> tuple:
+    if not raw:
+        return ("", "")
+    raw = raw.strip()
+    raw = re.sub(r"[市区县]", "", raw)
+    for city in ["北京", "上海", "深圳", "杭州", "广州"]:
+        if city in raw:
+            rest = raw.replace(city, "").strip()
+            return (city, rest)
+    return ("other", raw)
+
+
+def normalize_education(raw: str) -> str:
+    if not raw:
+        return "unknown"
+    if "博士" in raw:
+        return "phd"
+    if "硕士" in raw or "研究生" in raw:
+        return "master"
+    if "本科" in raw:
+        return "bachelor"
+    if "大专" in raw:
+        return "junior_college"
+    if "不限" in raw:
+        return "none"
+    return "unknown"
+
+
+def normalize_experience(raw: str) -> str:
+    if not raw:
+        return "unknown"
+    if "应届" in raw:
+        return "fresh"
+    if "经验不限" in raw or "不限" in raw:
+        return "none"
+    if "1年以下" in raw or "1年以内" in raw:
+        return "lt_1_year"
+    if "1-3" in raw:
+        return "one_to_three"
+    if "3-5" in raw:
+        return "three_to_five"
+    if "5年" in raw:
+        return "five_plus"
+    return "unknown"
+
+
+def detect_direction(title: str, desc: str) -> str:
+    text = (title or "") + " " + (desc or "")
+    text_lower = text.lower()
+
+    rules = {
+        "java_backend": ["java", "spring boot", "mybatis", "jvm", "dubbo"],
+        "go_backend": ["golang", "go语言", "gin ", "grpc"],
+        "frontend": ["react", "vue", "typescript", "前端", "css"],
+        "android": ["android", "kotlin", "jetpack", "compose"],
+        "ai_application": ["llm", "大模型", "rag", "agent", "langchain"],
+        "test_development": ["测试开发", "自动化测试", "selenium", "pytest"],
+    }
+
+    scores = {}
+    for direction, keywords in rules.items():
+        score = sum(2 if kw in text_lower else 0 for kw in keywords)
+        if score > 0:
+            scores[direction] = score
+
+    if not scores:
+        return "unknown"
+    return max(scores, key=scores.get)
+
+
+def run():
+    session = get_session()
+    rows = session.execute(
+        text("SELECT id, raw_title, raw_company, raw_city, raw_salary, raw_education, raw_experience, raw_description, publish_date FROM raw_jobs WHERE parse_status = 'pending'")
+    ).fetchall()
+
+    if not rows:
+        print("No pending raw_jobs to normalize.")
+        session.close()
+        return
+
+    count = 0
+    for row in rows:
+        rid = row.id
+        title = row.raw_title or ""
+        company = row.raw_company or ""
+        raw_city = row.raw_city or ""
+        raw_salary = row.raw_salary or ""
+        raw_edu = row.raw_education or ""
+        raw_exp = row.raw_experience or ""
+        desc = row.raw_description or ""
+
+        salary = parse_salary(raw_salary)
+        city, district = normalize_city(raw_city)
+        edu = normalize_education(raw_edu)
+        exp = normalize_experience(raw_exp)
+        direction = detect_direction(title, desc)
+
+        session.execute(
+            text("""
+                INSERT INTO jobs (raw_job_id, title, company_name, city, district, salary_text, salary_min_monthly, salary_max_monthly, salary_median_monthly, salary_months, salary_type, education_text, education_level, experience_text, experience_level, direction, description_clean, publish_date, fetched_at)
+                VALUES (:rid, :title, :company, :city, :district, :stext, :smin, :smax, :smed, :smonths, :stype, :edutext, :edulevel, :exptext, :explevel, :dir, :desc, :pdate, :fetched)
+                ON CONFLICT (raw_job_id) DO NOTHING
+            """),
+            {
+                "rid": rid, "title": title, "company": company,
+                "city": city, "district": district,
+                "stext": raw_salary, "smin": salary.get("min"), "smax": salary.get("max"),
+                "smed": salary.get("median"), "smonths": salary.get("months"), "stype": salary.get("type"),
+                "edutext": raw_edu, "edulevel": edu,
+                "exptext": raw_exp, "explevel": exp,
+                "dir": direction, "desc": desc[:5000],
+                "pdate": row.publish_date, "fetched": datetime.now(timezone.utc),
+            },
+        )
+
+        session.execute(
+            text("UPDATE raw_jobs SET parse_status = 'parsed', updated_at = now() WHERE id = :id"),
+            {"id": rid},
+        )
+        count += 1
+
+    session.commit()
+    session.close()
+    print(f"Normalized {count} jobs.")
+
+
+if __name__ == "__main__":
+    run()

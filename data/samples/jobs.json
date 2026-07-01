@@ -1,0 +1,58 @@
+[
+  {
+    "source_url": "https://example.com/job/1",
+    "raw_title": "Java后端开发工程师",
+    "raw_company": "示例科技",
+    "raw_city": "北京",
+    "raw_salary": "15-25K·14薪",
+    "raw_description": "负责后端服务开发，熟悉Spring Boot、Spring Cloud、MySQL、Redis，有微服务经验优先。"
+  },
+  {
+    "source_url": "https://example.com/job/2",
+    "raw_title": "前端开发工程师",
+    "raw_company": "示例网络",
+    "raw_city": "上海",
+    "raw_salary": "12-18K",
+    "raw_description": "负责Web前端开发，熟练使用React、TypeScript、Vue、Webpack，有组件化开发经验。"
+  },
+  {
+    "source_url": "https://example.com/job/3",
+    "raw_title": "AI应用开发工程师",
+    "raw_company": "示例智能",
+    "raw_city": "深圳",
+    "raw_salary": "20-35K·15薪",
+    "raw_description": "参与大模型应用开发，熟悉RAG、Agent、LangChain、Python，有LLM落地经验。"
+  },
+  {
+    "source_url": "https://example.com/job/4",
+    "raw_title": "Go后端开发",
+    "raw_company": "示例云原生",
+    "raw_city": "杭州",
+    "raw_salary": "18-28K",
+    "raw_description": "负责云原生服务开发，熟悉Go、Gin、gRPC、Kubernetes、Docker。"
+  },
+  {
+    "source_url": "https://example.com/job/5",
+    "raw_title": "测试开发工程师",
+    "raw_company": "示例软件",
+    "raw_city": "广州",
+    "raw_salary": "10-16K",
+    "raw_description": "负责自动化测试框架建设，熟悉Python、pytest、Selenium、接口测试、性能测试。"
+  },
+  {
+    "source_url": "https://example.com/job/6",
+    "raw_title": "Android开发工程师",
+    "raw_company": "示例移动",
+    "raw_city": "北京",
+    "raw_salary": "14-22K",
+    "raw_description": "负责Android客户端开发，熟悉Kotlin、Jetpack Compose、音视频处理。"
+  },
+  {
+    "source_url": "https://example.com/job/7",
+    "raw_title": "Java后端（校招）",
+    "raw_company": "示例金融",
+    "raw_city": "上海",
+    "raw_salary": "面议",
+    "raw_description": "应届生岗位，熟悉Java基础、Spring Boot、MySQL，有项目经验优先。"
+  }
+]
