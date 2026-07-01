@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from services.crawler.storage.db import get_session
 from services.crawler.utils.hash import url_hash, content_hash
 from services.crawler.fetchers.static_fetcher import StaticFetcher
+from services.crawler.fetchers.playwright_fetcher import PlaywrightFetcher
 from services.crawler.fetchers.base import BaseFetcher
 from services.crawler.parsers.generic_parser import GenericParser
 from services.crawler.parsers.base import BaseParser, RawJobDTO
@@ -21,8 +22,8 @@ MAX_JOBS_PER_SOURCE = 100
 
 
 def get_fetcher(fetcher_type: str) -> BaseFetcher:
-    if fetcher_type == "static":
-        return StaticFetcher()
+    if fetcher_type == "playwright":
+        return PlaywrightFetcher()
     return StaticFetcher()
 
 
