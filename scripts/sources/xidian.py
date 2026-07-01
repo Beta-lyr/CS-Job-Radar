@@ -18,20 +18,34 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from services.crawler.utils.hash import url_hash, content_hash
 
 BASE_URL = "https://job.xidian.edu.cn"
+MAX_PAGES = 20
+MAX_JOBS_TOTAL = 200
 
 
 def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
     result = {"inserted": 0, "skipped": 0, "error": ""}
 
     try:
-        list_html = fetcher.fetch(list_url)
-        detail_urls = _extract_job_links(list_html)
+        all_links: set[str] = set()
 
-        if not detail_urls:
-            result["error"] = "No job links found on list page"
-            return result
+        for page in range(1, MAX_PAGES + 1):
+            if len(all_links) >= MAX_JOBS_TOTAL:
+                break
 
-        detail_urls = detail_urls[:30]
+            page_url = _paginated_url(list_url, page)
+            try:
+                html = fetcher.fetch(page_url)
+                page_links = set(_extract_job_links(html))
+                new_links = page_links - all_links
+                if not new_links and page > 1:
+                    break
+                all_links.update(page_links)
+            except Exception:
+                if page == 1:
+                    raise
+                break
+
+        detail_urls = list(all_links)[:MAX_JOBS_TOTAL]
 
         for detail_url in detail_urls:
             try:
@@ -54,6 +68,12 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
         result["error"] = str(e)[:500]
 
     return result
+
+
+def _paginated_url(list_url: str, page: int) -> str:
+    if page == 1:
+        return list_url
+    return f"{list_url.rstrip('/')}/index?page={page}"
 
 
 def _extract_job_links(html: str) -> list[str]:
