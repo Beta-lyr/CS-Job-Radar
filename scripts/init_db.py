@@ -3,9 +3,11 @@
 import os
 import sys
 
+from sqlalchemy import text
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "services", "crawler"))
 
-from storage.db import engine
+from storage.db import get_engine
 
 MIGRATION_PATH = os.path.join(
     os.path.dirname(__file__), "..", "packages", "db", "migrations", "001_init.sql"
@@ -21,12 +23,11 @@ def run_migration():
         sql = f.read()
 
     print("Running migration: 001_init.sql ...")
+    engine = get_engine()
     with engine.begin() as conn:
         conn.execute(text(sql))
     print("Migration completed.")
 
-
-from sqlalchemy import text
 
 if __name__ == "__main__":
     run_migration()
