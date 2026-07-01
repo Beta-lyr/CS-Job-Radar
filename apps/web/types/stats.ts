@@ -42,3 +42,21 @@ export interface CityStat {
   city: string
   jobCount: number
 }
+
+export interface CityOverview {
+  city: string
+  jobCount: number
+  directionCount: number
+  friendlyRatio: number
+  salaryMedian: number | null
+  friendlyCount: number
+}
+
+export interface ReportDetail {
+  title: string
+  slug: string
+  summary: string
+  weekStart: string
+  weekEnd: string
+  contentMarkdown: string | null
+}
