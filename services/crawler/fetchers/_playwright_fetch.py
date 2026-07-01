@@ -20,7 +20,8 @@ def main():
             page.set_extra_http_headers({"User-Agent": USER_AGENT})
             page.goto(url, wait_until="domcontentloaded", timeout=30000)
             page.wait_for_timeout(2000)
-            print(page.content())
+            html = page.content()
+            sys.stdout.buffer.write(html.encode("utf-8"))
         finally:
             page.close()
             browser.close()

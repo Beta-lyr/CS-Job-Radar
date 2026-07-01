@@ -19,9 +19,10 @@ class PlaywrightFetcher(BaseFetcher):
         result = subprocess.run(
             [sys.executable, _HELPER_SCRIPT, url],
             capture_output=True,
-            text=True,
             timeout=90,
+            env={**os.environ, "PYTHONIOENCODING": "utf-8"},
         )
         if result.returncode != 0:
-            raise RuntimeError(f"Playwright fetch failed: {result.stderr.strip()}")
-        return result.stdout
+            err = result.stderr.decode("utf-8", errors="replace").strip()
+            raise RuntimeError(f"Playwright fetch failed: {err}")
+        return result.stdout.decode("utf-8", errors="replace")
