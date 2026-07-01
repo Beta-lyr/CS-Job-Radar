@@ -1,4 +1,4 @@
-"""每日采集脚本：读取启用的数据源 -> 采集 -> 写入 raw_jobs。"""
+"""每日采集脚本：读取启用的数据源 → 按 slug 路由到专属脚本 → 写入 raw_jobs。"""
 
 import os
 import sys
@@ -9,47 +9,16 @@ from sqlalchemy import text
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from services.crawler.storage.db import get_session
-from services.crawler.utils.hash import url_hash, content_hash
 from services.crawler.fetchers.static_fetcher import StaticFetcher
 from services.crawler.fetchers.playwright_fetcher import PlaywrightFetcher
 from services.crawler.fetchers.base import BaseFetcher
-from services.crawler.parsers.generic_parser import GenericParser
-from services.crawler.parsers.base import RawJobDTO
 from scripts.sources import load_source_script
-
-MAX_DETAIL_PAGES = 30
-MAX_JOBS_PER_SOURCE = 100
 
 
 def get_fetcher(fetcher_type: str) -> BaseFetcher:
     if fetcher_type == "playwright":
         return PlaywrightFetcher()
     return StaticFetcher()
-
-
-def insert_raw_job(session, source_id: int, job: RawJobDTO, source_url_hash: str, raw_hash_val: str) -> bool:
-    result = session.execute(
-        text("""
-            INSERT INTO raw_jobs (source_id, source_url, source_url_hash, raw_title, raw_company, raw_city, raw_salary, raw_education, raw_experience, raw_description, publish_date, raw_hash, parse_status)
-            VALUES (:sid, :url, :url_hash, :title, :company, :city, :salary, :edu, :exp, :desc, :pdate, :raw_hash, 'pending')
-            ON CONFLICT (source_url_hash) DO NOTHING
-        """),
-        {
-            "sid": source_id,
-            "url": job.source_url,
-            "url_hash": source_url_hash,
-            "title": job.raw_title or "",
-            "company": job.raw_company or "",
-            "city": job.raw_city or "",
-            "salary": job.raw_salary or "",
-            "edu": job.raw_education or "",
-            "exp": job.raw_experience or "",
-            "desc": (job.raw_description or "")[:8000].replace("\x00", ""),
-            "pdate": job.publish_date or datetime.now(timezone.utc),
-            "raw_hash": raw_hash_val,
-        },
-    )
-    return result.rowcount > 0
 
 
 def log_crawl(session, source_id: int, status: str, fetched: int, inserted: int, skipped: int = 0, error: str = ""):
@@ -64,48 +33,6 @@ def log_crawl(session, source_id: int, status: str, fetched: int, inserted: int,
             "fetched": fetched, "inserted": inserted, "skipped": skipped, "error": error,
         },
     )
-
-
-def crawl_with_generic_parser(session, source_id: int, list_url: str, fetcher_type: str) -> dict:
-    result = {"inserted": 0, "skipped": 0, "error": ""}
-    try:
-        fetcher = get_fetcher(fetcher_type)
-        parser = GenericParser()
-
-        list_html = fetcher.fetch(list_url)
-        detail_urls = parser.parse_list(list_html, list_url)
-
-        if not detail_urls:
-            result["error"] = "No job links found on list page"
-            return result
-
-        detail_urls = detail_urls[:MAX_DETAIL_PAGES]
-        jobs: list[RawJobDTO] = []
-
-        for detail_url in detail_urls:
-            if len(jobs) >= MAX_JOBS_PER_SOURCE:
-                break
-            try:
-                detail_html = fetcher.fetch(detail_url)
-                job = parser.parse_detail(detail_html, detail_url)
-                if job.raw_title:
-                    jobs.append(job)
-            except Exception:
-                continue
-
-        for job in jobs:
-            uh = url_hash(job.source_url)
-            ch = content_hash(job.raw_title or "", job.raw_company or "", job.raw_city or "", job.raw_description or "")
-            if insert_raw_job(session, source_id, job, uh, ch):
-                result["inserted"] += 1
-            else:
-                result["skipped"] += 1
-
-    except Exception as e:
-        result["error"] = str(e)[:500]
-        traceback.print_exc()
-
-    return result
 
 
 def run():
@@ -128,28 +55,36 @@ def run():
             session.commit()
             continue
 
+        if not slug:
+            print(f"  -> skipped (no slug configured)")
+            log_crawl(session, sid, "failed", 0, 0, 0, "No slug configured in sources table")
+            session.commit()
+            continue
+
+        script = load_source_script(slug)
+
+        if not script:
+            print(f"  -> skipped (no source script at scripts/sources/{slug}.py)")
+            log_crawl(session, sid, "failed", 0, 0, 0, f"Source script not found: sources/{slug}.py")
+            session.commit()
+            continue
+
         fetcher = get_fetcher(fetcher_type or "static")
-        script = load_source_script(slug) if slug else None
+        try:
+            r = script.crawl(session, sid, list_url, fetcher)
+        except Exception as e:
+            traceback.print_exc()
+            r = {"inserted": 0, "skipped": 0, "error": str(e)[:500]}
 
-        if script:
-            print(f"  -> using dedicated script: sources/{slug}.py")
-            try:
-                r = script.crawl(session, sid, list_url, fetcher)
-            except Exception as e:
-                traceback.print_exc()
-                r = {"inserted": 0, "skipped": 0, "error": str(e)[:500]}
-        else:
-            r = crawl_with_generic_parser(session, sid, list_url, fetcher_type)
-
-        total_inserted += r["inserted"]
-        total_skipped += r["skipped"]
+        total_inserted += r.get("inserted", 0)
+        total_skipped += r.get("skipped", 0)
 
         status = "success" if not r.get("error") else ("partial_success" if r.get("inserted", 0) > 0 else "failed")
         fcount = r.get("inserted", 0) + r.get("skipped", 0)
         log_crawl(session, sid, status, fcount, r.get("inserted", 0), r.get("skipped", 0), r.get("error", ""))
         session.commit()
 
-        print(f"  -> inserted={r['inserted']} skipped={r['skipped']} {'error=' + r['error'] if r.get('error') else ''}")
+        print(f"  -> inserted={r.get('inserted', 0)} skipped={r.get('skipped', 0)} {'error=' + r['error'] if r.get('error') else ''}")
 
     session.close()
     print(f"Done. Sources: {len(sources)}, Inserted: {total_inserted}, Skipped: {total_skipped}.")
