@@ -177,7 +177,7 @@
     "parser_type": "generic",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": false,
+    "enabled": true,
     "crawl_interval_hours": 24,
     "note": "可作为 career.sysu.edu.cn 的备选岗位源，先禁用，后续单独验证。"
   },
@@ -191,7 +191,7 @@
     "parser_type": "company",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": false,
+    "enabled": true,
     "crawl_interval_hours": 48,
     "note": "新版中文校招职位列表入口，建议企业源第二阶段再启用。"
   },
@@ -205,7 +205,7 @@
     "parser_type": "company",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": false,
+    "enabled": true,
     "crawl_interval_hours": 48,
     "note": "校园招聘首页为 /campus；职位页可先尝试 /campus/m/position。"
   },
@@ -219,7 +219,7 @@
     "parser_type": "company",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": false,
+    "enabled": true,
     "crawl_interval_hours": 48,
     "note": "腾讯校招岗位投递入口。"
   },
@@ -233,7 +233,7 @@
     "parser_type": "company",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": false,
+    "enabled": true,
     "crawl_interval_hours": 48,
     "note": "阿里校招入口建议改为 campus-talent.alibaba.com；具体职位列表 batchId 可能变化，不建议写死。"
   },
@@ -247,7 +247,7 @@
     "parser_type": "company",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": false,
+    "enabled": true,
     "crawl_interval_hours": 48,
     "note": "原 campus.meituan.com/jobs 建议替换为 zhaopin.meituan.com/web/campus。"
   },
@@ -261,7 +261,7 @@
     "parser_type": "generic",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": false,
+    "enabled": true,
     "crawl_interval_hours": 24,
     "note": "国家大学生就业服务平台为教育部主管公共就业服务平台；岗位页可能需要动态渲染，先禁用，后续单独验证。"
   }

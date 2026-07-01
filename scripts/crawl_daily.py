@@ -66,7 +66,7 @@ def insert_raw_job(session, source_id: int, job: RawJobDTO, source_url_hash: str
             "salary": job.raw_salary or "",
             "edu": job.raw_education or "",
             "exp": job.raw_experience or "",
-            "desc": (job.raw_description or "")[:8000],
+            "desc": (job.raw_description or "")[:8000].replace("\x00", ""),
             "pdate": job.publish_date or datetime.now(timezone.utc),
             "raw_hash": raw_hash_val,
         },
