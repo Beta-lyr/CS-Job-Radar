@@ -1,0 +1,15 @@
+[
+  {
+    "name": "Sample University Career Center",
+    "source_type": "university",
+    "base_url": "https://career.example.edu.cn",
+    "list_url": "https://career.example.edu.cn/jobs",
+    "city": "北京",
+    "industry": "综合",
+    "parser_type": "university",
+    "fetcher_type": "static",
+    "risk_level": "low",
+    "enabled": true,
+    "crawl_interval_hours": 24
+  }
+]

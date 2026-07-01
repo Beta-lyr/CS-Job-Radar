@@ -1,0 +1,38 @@
+{
+  "java_backend": {
+    "title_keywords": ["java", "后端", "服务端", "spring"],
+    "jd_keywords": ["spring boot", "spring cloud", "mybatis", "jvm", "微服务", "dubbo"],
+    "title_weight": 5,
+    "jd_weight": 3
+  },
+  "go_backend": {
+    "title_keywords": ["go", "golang", "go后端"],
+    "jd_keywords": ["gin", "grpc", "云原生", "微服务", "k8s"],
+    "title_weight": 5,
+    "jd_weight": 3
+  },
+  "frontend": {
+    "title_keywords": ["前端", "web前端", "h5", "web开发"],
+    "jd_keywords": ["react", "vue", "typescript", "javascript", "next.js", "webpack", "vite", "css"],
+    "title_weight": 5,
+    "jd_weight": 3
+  },
+  "android": {
+    "title_keywords": ["android", "安卓"],
+    "jd_keywords": ["kotlin", "jetpack", "compose", "gradle", "音视频", "移动端"],
+    "title_weight": 5,
+    "jd_weight": 3
+  },
+  "ai_application": {
+    "title_keywords": ["ai", "人工智能", "大模型", "llm", "算法"],
+    "jd_keywords": ["rag", "agent", "prompt", "langchain", "向量数据库", "aigc", "深度学习"],
+    "title_weight": 5,
+    "jd_weight": 3
+  },
+  "test_development": {
+    "title_keywords": ["测试", "测试开发", "测开"],
+    "jd_keywords": ["自动化测试", "接口测试", "性能测试", "pytest", "selenium", "jmeter", "postman"],
+    "title_weight": 5,
+    "jd_weight": 3
+  }
+}
