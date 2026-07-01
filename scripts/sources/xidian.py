@@ -73,7 +73,7 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
 def _paginated_url(list_url: str, page: int) -> str:
     if page == 1:
         return list_url
-    return f"{list_url.rstrip('/')}/index?page={page}"
+    return f"{list_url.rstrip('/')}/index/do1/job.xidian.edu.cn/domain/xidian/city//page/{page}"
 
 
 def _extract_job_links(html: str) -> list[str]:

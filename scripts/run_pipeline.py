@@ -20,6 +20,7 @@ def run_script(name: str):
 
 
 if __name__ == "__main__":
+    run_script("seed_sources.py")
     run_script("crawl_daily.py")
     run_script("normalize_jobs.py")
     run_script("generate_daily_stats.py")
