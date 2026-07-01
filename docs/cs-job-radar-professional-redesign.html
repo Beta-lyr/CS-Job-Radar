@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>计算机职业方向雷达 · 专业版界面重设计</title>
+  <style>
+    :root {
+      --page: #faf9f6;
+      --paper: #ffffff;
+      --paper-soft: #f6f5f1;
+      --ink: #182033;
+      --ink-2: #394150;
+      --muted: #6b7280;
+      --muted-light: #9ca3af;
+      --line: #e5e1d8;
+      --line-2: #ece9e2;
+
+      --blue: #2453a6;
+      --blue-dark: #173f83;
+      --blue-soft: #eef3ff;
+      --green: #2f7d5b;
+      --green-soft: #edf7f2;
+      --amber: #9a6a1f;
+      --amber-soft: #fff6df;
+      --red: #a33a3a;
+      --red-soft: #fff0f0;
+
+      --shadow: 0 18px 44px rgba(24, 32, 51, 0.08);
+      --shadow-soft: 0 10px 24px rgba(24, 32, 51, 0.055);
+
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --content: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(250,249,246,0.96), rgba(250,249,246,1)),
+        radial-gradient(circle at top left, rgba(36,83,166,0.06), transparent 28%);
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        "PingFang SC",
+        "Microsoft YaHei",
+        sans-serif;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(var(--content), calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      border-bottom: 1px solid var(--line);
+      background: rgba(250, 249, 246, 0.88);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .nav {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      min-width: max-content;
+    }
+
+    .brand-symbol {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      color: var(--paper);
+      background: var(--ink);
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.08em;
+    }
+
+    .brand-copy strong {
+      display: block;
+      font-size: 15px;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-copy span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      color: var(--ink-2);
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .nav-links a {
+      padding: 8px 0;
+      border-bottom: 2px solid transparent;
+    }
+
+    .nav-links a:hover {
+      color: var(--blue);
+      border-bottom-color: var(--blue);
+    }
+
+    .nav-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 999px;
+      color: var(--paper);
+      background: var(--blue);
+      font-size: 13px;
+      font-weight: 750;
+      box-shadow: var(--shadow-soft);
+      transition: 160ms ease;
+      min-width: max-content;
+    }
+
+    .nav-action:hover {
+      background: var(--blue-dark);
+      transform: translateY(-1px);
+    }
+
+    .menu-button {
+      display: none;
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    .hero {
+      padding: 62px 0 40px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.78fr);
+      gap: 42px;
+      align-items: center;
+    }
+
+    .overline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .overline::before {
+      content: "";
+      width: 28px;
+      height: 1px;
+      background: var(--blue);
+    }
+
+    .hero h1 {
+      margin: 0;
+      max-width: 780px;
+      font-size: clamp(42px, 6vw, 70px);
+      line-height: 1.02;
+      letter-spacing: -0.065em;
+      font-weight: 850;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--blue);
+    }
+
+    .hero-lead {
+      max-width: 680px;
+      margin: 24px 0 0;
+      color: var(--ink-2);
+      font-size: 18px;
+      line-height: 1.9;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .button-primary,
+    .button-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 46px;
+      padding: 0 18px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 760;
+      transition: 160ms ease;
+    }
+
+    .button-primary {
+      color: var(--paper);
+      background: var(--blue);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .button-primary:hover {
+      background: var(--blue-dark);
+      transform: translateY(-1px);
+    }
+
+    .button-secondary {
+      color: var(--ink);
+      background: var(--paper);
+      border: 1px solid var(--line);
+    }
+
+    .button-secondary:hover {
+      border-color: #c9c3b8;
+      transform: translateY(-1px);
+    }
+
+    .trust-list {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px 18px;
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .trust-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .trust-dot {
+      width: 18px;
+      height: 18px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      color: var(--green);
+      background: var(--green-soft);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .report-preview {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .report-preview-head {
+      padding: 18px 20px;
+      background: #fbfbf8;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .report-preview-title {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .report-preview-title strong {
+      font-size: 14px;
+    }
+
+    .report-preview-title span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .report-badge {
+      padding: 6px 9px;
+      border-radius: 999px;
+      color: var(--blue);
+      background: var(--blue-soft);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .report-preview-body {
+      padding: 22px;
+    }
+
+    .index-score {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 20px;
+      align-items: center;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--line-2);
+    }
+
+    .score-circle {
+      width: 116px;
+      height: 116px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at center, #fff 58%, transparent 59%),
+        conic-gradient(var(--blue) 0 72%, #e8e4db 72% 100%);
+    }
+
+    .score-circle strong {
+      font-size: 30px;
+      letter-spacing: -0.06em;
+    }
+
+    .score-copy h2 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: -0.04em;
+    }
+
+    .score-copy p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .preview-table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .preview-table th {
+      padding: 10px 0;
+      color: var(--muted);
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      font-weight: 700;
+    }
+
+    .preview-table td {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line-2);
+      vertical-align: middle;
+    }
+
+    .preview-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .rank-pill {
+      display: inline-grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      color: var(--blue);
+      background: var(--blue-soft);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .direction-name {
+      font-weight: 800;
+    }
+
+    .change-up,
+    .change-stable,
+    .change-risk {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 7px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .change-up {
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .change-stable {
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .change-risk {
+      color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .stats-strip {
+      padding: 24px 0 32px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .stat-card {
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      background: var(--paper);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .stat-card span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .stat-card strong {
+      display: block;
+      margin-top: 12px;
+      font-size: 32px;
+      line-height: 1;
+      letter-spacing: -0.055em;
+    }
+
+    .stat-card p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .section {
+      padding: 42px 0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 22px;
+    }
+
+    .section-kicker {
+      margin: 0 0 8px;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.15;
+      letter-spacing: -0.055em;
+    }
+
+    .section-desc {
+      max-width: 650px;
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .section-link {
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 800;
+      min-width: max-content;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .panel-inner {
+      padding: 22px;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .panel h3 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.035em;
+    }
+
+    .panel-subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .small-note {
+      color: var(--muted);
+      background: var(--paper-soft);
+      border: 1px solid var(--line-2);
+      padding: 6px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .direction-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .direction-row {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr) 120px 84px;
+      gap: 14px;
+      align-items: center;
+      padding: 15px;
+      border-radius: 16px;
+      border: 1px solid var(--line-2);
+      background: #fff;
+    }
+
+    .direction-row:hover {
+      border-color: #c7d4ef;
+      box-shadow: 0 10px 24px rgba(36, 83, 166, 0.07);
+    }
+
+    .direction-index {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      color: var(--ink-2);
+      background: var(--paper-soft);
+      border: 1px solid var(--line-2);
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .direction-index.top {
+      color: white;
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .direction-main {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 850;
+    }
+
+    .direction-meta {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bar-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .bar-track {
+      height: 7px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e8e4db;
+    }
+
+    .bar-fill {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      background: var(--blue);
+    }
+
+    .salary {
+      text-align: right;
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .salary small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .skill-list {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .skill-item {
+      display: grid;
+      grid-template-columns: 92px 1fr 40px;
+      gap: 12px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .skill-name {
+      font-weight: 820;
+    }
+
+    .skill-count {
+      color: var(--muted);
+      text-align: right;
+      font-weight: 750;
+    }
+
+    .insight-box {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: var(--radius-lg);
+      background: #fbfbf8;
+      border: 1px solid var(--line);
+    }
+
+    .insight-box h4 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      letter-spacing: -0.02em;
+    }
+
+    .insight-box p {
+      margin: 0;
+      color: var(--ink-2);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .report-section {
+      padding: 44px 0;
+    }
+
+    .report-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .article-card {
+      padding: 28px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .article-label {
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 850;
+      letter-spacing: 0.05em;
+    }
+
+    .article-card h2 {
+      margin: 16px 0 14px;
+      font-size: 33px;
+      line-height: 1.16;
+      letter-spacing: -0.055em;
+    }
+
+    .article-card p {
+      margin: 0;
+      color: var(--ink-2);
+      font-size: 15px;
+      line-height: 1.9;
+    }
+
+    .editorial-quote {
+      margin-top: 22px;
+      padding: 18px 20px;
+      border-left: 4px solid var(--blue);
+      border-radius: 0 16px 16px 0;
+      background: #f4f6fb;
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.8;
+      font-weight: 650;
+    }
+
+    .article-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .flow-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .flow-item {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 14px;
+      padding: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .flow-num {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      color: var(--paper);
+      background: var(--ink);
+      border-radius: 14px;
+      font-weight: 900;
+    }
+
+    .flow-item h3 {
+      margin: 0 0 7px;
+      font-size: 16px;
+      letter-spacing: -0.03em;
+    }
+
+    .flow-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .project-card {
+      padding: 22px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .project-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .project-card h3 {
+      margin: 14px 0 10px;
+      font-size: 18px;
+      letter-spacing: -0.035em;
+    }
+
+    .project-card p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tags span {
+      padding: 6px 8px;
+      border-radius: 999px;
+      background: var(--paper-soft);
+      border: 1px solid var(--line-2);
+      color: var(--ink-2);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .method {
+      padding: 44px 0 70px;
+    }
+
+    .method-card {
+      display: grid;
+      grid-template-columns: 0.88fr 1.12fr;
+      gap: 24px;
+      padding: 28px;
+      background: var(--ink);
+      color: var(--paper);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .method-card .section-kicker {
+      color: #b9c8e9;
+    }
+
+    .method-card h2 {
+      margin: 0;
+      font-size: 32px;
+      line-height: 1.18;
+      letter-spacing: -0.055em;
+    }
+
+    .method-card p {
+      margin: 14px 0 0;
+      color: #c9ced8;
+      font-size: 15px;
+      line-height: 1.85;
+    }
+
+    .method-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .method-item {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 13px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 13px;
+      font-weight: 650;
+      color: #f3f4f6;
+    }
+
+    .method-item span {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      color: var(--ink);
+      background: var(--paper);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      padding: 28px 0;
+      color: var(--muted);
+      background: #fff;
+      font-size: 13px;
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    @media (max-width: 1040px) {
+      .nav-links,
+      .nav-action {
+        display: none;
+      }
+
+      .menu-button {
+        display: block;
+      }
+
+      .hero-grid,
+      .analysis-grid,
+      .report-grid,
+      .method-card {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid,
+      .project-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .container {
+        width: min(100% - 28px, var(--content));
+      }
+
+      .hero {
+        padding-top: 42px;
+      }
+
+      .hero h1 {
+        font-size: 44px;
+      }
+
+      .hero-lead {
+        font-size: 16px;
+      }
+
+      .stats-grid,
+      .project-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .index-score {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .direction-row {
+        grid-template-columns: 42px 1fr;
+      }
+
+      .bar-group,
+      .salary {
+        grid-column: 2;
+        text-align: left;
+      }
+
+      .skill-item {
+        grid-template-columns: 86px 1fr 36px;
+      }
+
+      .footer-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="container nav">
+      <a href="#" class="brand">
+        <div class="brand-symbol">JR</div>
+        <div class="brand-copy">
+          <strong>计算机职业方向雷达</strong>
+          <span>CS Career Direction Radar</span>
+        </div>
+      </a>
+
+      <nav class="nav-links" aria-label="主导航">
+        <a href="#directions">方向观察</a>
+        <a href="#skills">技能要求</a>
+        <a href="#reports">周度报告</a>
+        <a href="#projects">项目建议</a>
+        <a href="#method">数据方法</a>
+      </nav>
+
+      <a class="nav-action" href="#reports">查看本周报告</a>
+      <button class="menu-button" aria-label="打开菜单">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="overline">就业数据观察 · 2026 第 27 周</div>
+          <h1>
+            用招聘数据，判断计算机学生<em>该往哪里准备</em>。
+          </h1>
+          <p class="hero-lead">
+            我们把公开岗位样本整理成可读的方向观察：岗位热度、应届友好度、薪资区间、高频技能与项目建议。它不是招聘搜索，也不是制造焦虑，而是帮助学生做更清醒的学习规划。
+          </p>
+
+          <div class="hero-actions">
+            <a class="button-primary" href="#directions">查看方向排行</a>
+            <a class="button-secondary" href="#method">了解数据口径</a>
+          </div>
+
+          <div class="trust-list">
+            <span class="trust-item"><i class="trust-dot">✓</i> 聚合分析，不搬运岗位详情</span>
+            <span class="trust-item"><i class="trust-dot">✓</i> 面向实习、校招、应届生</span>
+            <span class="trust-item"><i class="trust-dot">✓</i> 每周更新趋势报告</span>
+          </div>
+        </div>
+
+        <aside class="report-preview" aria-label="本周报告预览">
+          <div class="report-preview-head">
+            <div class="report-preview-title">
+              <strong>本周方向观察摘要</strong>
+              <span>样本口径：近 7 天公开岗位信息</span>
+            </div>
+            <span class="report-badge">已更新</span>
+          </div>
+
+          <div class="report-preview-body">
+            <div class="index-score">
+              <div class="score-circle">
+                <strong>72</strong>
+              </div>
+              <div class="score-copy">
+                <h2>技术岗位机会指数</h2>
+                <p>
+                  指数综合岗位样本量、应届友好度、薪资分布和技能集中度，仅用于趋势参考。
+                </p>
+              </div>
+            </div>
+
+            <table class="preview-table">
+              <thead>
+                <tr>
+                  <th>排名</th>
+                  <th>方向</th>
+                  <th>变化</th>
+                  <th>中位薪资</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="rank-pill">1</span></td>
+                  <td><span class="direction-name">Java 后端</span></td>
+                  <td><span class="change-stable">稳定</span></td>
+                  <td>15K</td>
+                </tr>
+                <tr>
+                  <td><span class="rank-pill">2</span></td>
+                  <td><span class="direction-name">AI 应用开发</span></td>
+                  <td><span class="change-up">上升</span></td>
+                  <td>18K</td>
+                </tr>
+                <tr>
+                  <td><span class="rank-pill">3</span></td>
+                  <td><span class="direction-name">前端开发</span></td>
+                  <td><span class="change-risk">竞争高</span></td>
+                  <td>13K</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="stats-strip">
+      <div class="container stats-grid">
+        <div class="stat-card">
+          <span>本周有效岗位样本</span>
+          <strong>4,238</strong>
+          <p>已去除重复、无效和低置信岗位。</p>
+        </div>
+
+        <div class="stat-card">
+          <span>覆盖技术方向</span>
+          <strong>6</strong>
+          <p>Java、Go、前端、Android、AI 应用、测试开发。</p>
+        </div>
+
+        <div class="stat-card">
+          <span>覆盖核心城市</span>
+          <strong>5</strong>
+          <p>北京、上海、深圳、杭州、广州。</p>
+        </div>
+
+        <div class="stat-card">
+          <span>应届友好岗位占比</span>
+          <strong>32%</strong>
+          <p>含校招、实习、经验不限、接受应届等样本。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="directions" class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Direction Analysis</p>
+            <h2 class="section-title">技术方向观察</h2>
+            <p class="section-desc">
+              这里不把“岗位多”直接等同于“值得学”，而是结合岗位数量、应届友好度、技能门槛和薪资区间综合判断。
+            </p>
+          </div>
+          <a class="section-link" href="#">查看完整方向库 →</a>
+        </div>
+
+        <div class="analysis-grid">
+          <div class="panel">
+            <div class="panel-inner">
+              <div class="panel-head">
+                <div>
+                  <h3>本周方向排行</h3>
+                  <p class="panel-subtitle">基于近 7 天公开岗位样本统计</p>
+                </div>
+                <span class="small-note">更新时间：2026-07-01</span>
+              </div>
+
+              <div class="direction-list">
+                <div class="direction-row">
+                  <div class="direction-index top">1</div>
+                  <div>
+                    <div class="direction-main">
+                      Java 后端 <span class="change-stable">稳定</span>
+                    </div>
+                    <div class="direction-meta">Spring Boot / Redis / MySQL / Docker / 接口设计</div>
+                  </div>
+                  <div class="bar-group">
+                    <div class="bar-label"><span>机会指数</span><span>88</span></div>
+                    <div class="bar-track"><span class="bar-fill" style="width: 88%"></span></div>
+                  </div>
+                  <div class="salary">15K<small>中位数</small></div>
+                </div>
+
+                <div class="direction-row">
+                  <div class="direction-index top">2</div>
+                  <div>
+                    <div class="direction-main">
+                      AI 应用开发 <span class="change-up">上升</span>
+                    </div>
+                    <div class="direction-meta">LLM / RAG / Agent / Python / 向量数据库</div>
+                  </div>
+                  <div class="bar-group">
+                    <div class="bar-label"><span>机会指数</span><span>79</span></div>
+                    <div class="bar-track"><span class="bar-fill" style="width: 79%"></span></div>
+                  </div>
+                  <div class="salary">18K<small>中位数</small></div>
+                </div>
+
+                <div class="direction-row">
+                  <div class="direction-index">3</div>
+                  <div>
+                    <div class="direction-main">
+                      前端开发 <span class="change-risk">竞争高</span>
+                    </div>
+                    <div class="direction-meta">React / Vue / TypeScript / 工程化 / 可视化</div>
+                  </div>
+                  <div class="bar-group">
+                    <div class="bar-label"><span>机会指数</span><span>68</span></div>
+                    <div class="bar-track"><span class="bar-fill" style="width: 68%"></span></div>
+                  </div>
+                  <div class="salary">13K<small>中位数</small></div>
+                </div>
+
+                <div class="direction-row">
+                  <div class="direction-index">4</div>
+                  <div>
+                    <div class="direction-main">
+                      Go 后端 <span class="change-stable">工程化</span>
+                    </div>
+                    <div class="direction-meta">Go / Gin / gRPC / 微服务 / 云原生</div>
+                  </div>
+                  <div class="bar-group">
+                    <div class="bar-label"><span>机会指数</span><span>61</span></div>
+                    <div class="bar-track"><span class="bar-fill" style="width: 61%"></span></div>
+                  </div>
+                  <div class="salary">16K<small>中位数</small></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside id="skills" class="panel">
+            <div class="panel-inner">
+              <div class="panel-head">
+                <div>
+                  <h3>岗位高频技能</h3>
+                  <p class="panel-subtitle">按 JD 出现频次和方向相关性排序</p>
+                </div>
+              </div>
+
+              <div class="skill-list">
+                <div class="skill-item">
+                  <span class="skill-name">Spring Boot</span>
+                  <div class="bar-track"><span class="bar-fill" style="width: 86%"></span></div>
+                  <span class="skill-count">86</span>
+                </div>
+                <div class="skill-item">
+                  <span class="skill-name">Redis</span>
+                  <div class="bar-track"><span class="bar-fill" style="width: 74%"></span></div>
+                  <span class="skill-count">74</span>
+                </div>
+                <div class="skill-item">
+                  <span class="skill-name">MySQL</span>
+                  <div class="bar-track"><span class="bar-fill" style="width: 71%"></span></div>
+                  <span class="skill-count">71</span>
+                </div>
+                <div class="skill-item">
+                  <span class="skill-name">TypeScript</span>
+                  <div class="bar-track"><span class="bar-fill" style="width: 64%"></span></div>
+                  <span class="skill-count">64</span>
+                </div>
+                <div class="skill-item">
+                  <span class="skill-name">RAG</span>
+                  <div class="bar-track"><span class="bar-fill" style="width: 57%"></span></div>
+                  <span class="skill-count">57</span>
+                </div>
+                <div class="skill-item">
+                  <span class="skill-name">Docker</span>
+                  <div class="bar-track"><span class="bar-fill" style="width: 48%"></span></div>
+                  <span class="skill-count">48</span>
+                </div>
+              </div>
+
+              <div class="insight-box">
+                <h4>设计重点</h4>
+                <p>
+                  高频技能不要做成花哨词云。学生真正需要的是排序、类别、出现率、必备/加分判断，以及对应的学习建议。
+                </p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section id="reports" class="report-section">
+      <div class="container">
+        <div class="report-grid">
+          <article class="article-card">
+            <div class="article-label">WEEKLY REPORT</div>
+            <h2>本周结论：Java 仍然稳，AI 应用升温，但项目门槛更高。</h2>
+            <p>
+              本周公开岗位样本显示，Java 后端仍然是最稳定的应届技术方向之一；AI 应用开发岗位增长明显，但企业更看重完整项目经验，包括数据处理、检索增强、接口封装、部署和业务闭环。
+            </p>
+
+            <div class="editorial-quote">
+              对学生来说，不应只追热点，而要判断自己是否能在 8 到 12 周内做出能讲清楚、能部署、能被追问的项目。
+            </div>
+
+            <div class="article-actions">
+              <a class="button-primary" href="#">阅读完整周报</a>
+              <a class="button-secondary" href="#">查看历史报告</a>
+            </div>
+          </article>
+
+          <div class="flow-list">
+            <div class="flow-item">
+              <div class="flow-num">1</div>
+              <div>
+                <h3>先看方向，不先看课程</h3>
+                <p>先判断市场中不同技术方向的需求，再决定自己的学习路径，而不是被单一课程路线牵着走。</p>
+              </div>
+            </div>
+
+            <div class="flow-item">
+              <div class="flow-num">2</div>
+              <div>
+                <h3>区分必备技能和加分技能</h3>
+                <p>JD 里会出现大量技术名词，但学生需要知道哪些是入门门槛，哪些只是加分项。</p>
+              </div>
+            </div>
+
+            <div class="flow-item">
+              <div class="flow-num">3</div>
+              <div>
+                <h3>把趋势转成项目</h3>
+                <p>最终要落到可写进简历的项目，而不是停留在“我知道这个方向很热”。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects" class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Project Planning</p>
+            <h2 class="section-title">从岗位要求反推项目选题</h2>
+            <p class="section-desc">
+              这个模块不做“项目大全”，而是基于近期岗位要求，给出更适合学生简历表达和面试讲解的项目方向。
+            </p>
+          </div>
+          <a class="section-link" href="#">查看项目库 →</a>
+        </div>
+
+        <div class="project-grid">
+          <article class="project-card">
+            <div class="project-label">AI 应用方向</div>
+            <h3>岗位匹配与简历分析系统</h3>
+            <p>
+              适合展示 RAG、文档解析、岗位匹配、报告生成和服务部署能力。
+            </p>
+            <div class="tags">
+              <span>Next.js</span>
+              <span>Python</span>
+              <span>RAG</span>
+              <span>PostgreSQL</span>
+            </div>
+          </article>
+
+          <article class="project-card">
+            <div class="project-label">Java 后端方向</div>
+            <h3>在线判题系统简化版</h3>
+            <p>
+              适合覆盖任务队列、Docker 沙箱、判题调度、权限和日志。
+            </p>
+            <div class="tags">
+              <span>Spring Boot</span>
+              <span>Redis</span>
+              <span>Docker</span>
+              <span>MySQL</span>
+            </div>
+          </article>
+
+          <article class="project-card">
+            <div class="project-label">前后端综合</div>
+            <h3>校园二手交易平台</h3>
+            <p>
+              适合展示完整业务链路，包括发布、搜索、订单、后台和部署。
+            </p>
+            <div class="tags">
+              <span>React</span>
+              <span>API</span>
+              <span>权限</span>
+              <span>部署</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="method" class="method">
+      <div class="container">
+        <div class="method-card">
+          <div>
+            <p class="section-kicker">Data Methodology</p>
+            <h2>专业感来自克制，也来自数据口径透明。</h2>
+            <p>
+              这版设计去掉了过度 AI 化的符号：不使用霓虹光效、终端扫描、玻璃拟态和夸张渐变。视觉重心放在报告感、数据表格、明确层级和可信表达上。
+            </p>
+          </div>
+
+          <div class="method-list">
+            <div class="method-item"><span>1</span> 优先展示聚合统计，不复制岗位详情</div>
+            <div class="method-item"><span>2</span> 每个指标都能解释口径和样本范围</div>
+            <div class="method-item"><span>3</span> 用表格、条形图、摘要卡片承载信息</div>
+            <div class="method-item"><span>4</span> 文案避免“逆袭”“保 offer”“AI 预测未来”等营销表达</div>
+            <div class="method-item"><span>5</span> 让学生读完后知道该学什么、做什么项目</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>© 2026 计算机职业方向雷达 · 面向学生的技术岗位数据观察</div>
+      <div class="footer-links">
+        <a href="#">数据说明</a>
+        <a href="#">反馈建议</a>
+        <a href="#">隐私政策</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,32 @@
+name: Daily Job Pipeline
+
+on:
+  schedule:
+    - cron: "0 22 * * *"
+  workflow_dispatch:
+
+jobs:
+  daily-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Dependencies
+        run: |
+          pip install -r services/crawler/requirements.txt
+          pip install -r services/analyzer/requirements.txt
+      - name: Run Daily Crawl
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python scripts/crawl_daily.py
+      - name: Normalize Jobs
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python scripts/normalize_jobs.py
+      - name: Generate Daily Stats
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python scripts/generate_daily_stats.py
