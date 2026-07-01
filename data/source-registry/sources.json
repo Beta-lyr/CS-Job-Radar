@@ -102,11 +102,11 @@
     "name": "西安电子科技大学就业信息网",
     "source_type": "university",
     "base_url": "https://job.xidian.edu.cn",
-    "list_url": "https://job.xidian.edu.cn/",
+    "list_url": "https://job.xidian.edu.cn/campus",
     "city": "other",
     "industry": "信息技术",
     "parser_type": "university",
-    "fetcher_type": "static",
+    "fetcher_type": "playwright",
     "risk_level": "low",
     "enabled": true,
     "crawl_interval_hours": 24
