@@ -39,3 +39,8 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: python scripts/generate_daily_stats.py
+
+      - name: Trigger Cloudflare Pages Deploy
+        if: success()
+        run: |
+          curl -X POST "${{ secrets.CLOUDFLARE_PAGES_DEPLOY_HOOK }}"
