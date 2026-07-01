@@ -24,6 +24,7 @@ jobs:
           pip install --upgrade pip
           pip install -r services/crawler/requirements.txt
           pip install -r services/analyzer/requirements.txt
+          playwright install chromium --with-deps
 
       - name: Run Daily Pipeline
         env:
