@@ -1,6 +1,5 @@
 """每日采集脚本：读取启用的数据源 -> 采集 -> 写入 raw_jobs。"""
 
-import json
 import os
 import sys
 import traceback
@@ -75,47 +74,6 @@ def insert_raw_job(session, source_id: int, job: RawJobDTO, source_url_hash: str
     return result.rowcount > 0
 
 
-def load_sample_jobs():
-    path = os.path.join(os.path.dirname(__file__), "..", "data", "samples", "jobs.json")
-    if not os.path.exists(path):
-        return []
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
-
-
-def insert_sample_jobs(session):
-    sample_jobs = load_sample_jobs()
-    if not sample_jobs:
-        return 0
-    count = 0
-    for job in sample_jobs:
-        url = job.get("source_url", "")
-        uh = url_hash(url)
-        ch = content_hash(job.get("raw_title", ""), job.get("raw_company", ""), job.get("raw_city", ""), job.get("raw_description", ""))
-        result = session.execute(
-            text("""
-                INSERT INTO raw_jobs (source_id, source_url, source_url_hash, raw_title, raw_company, raw_city, raw_salary, raw_description, publish_date, raw_hash, parse_status)
-                VALUES (:sid, :url, :hash, :title, :company, :city, :salary, :desc, :pdate, :raw_hash, 'pending')
-                ON CONFLICT (source_url_hash) DO NOTHING
-            """),
-            {
-                "sid": 1,
-                "url": url,
-                "hash": uh,
-                "title": job.get("raw_title", ""),
-                "company": job.get("raw_company", ""),
-                "city": job.get("raw_city", ""),
-                "salary": job.get("raw_salary", ""),
-                "desc": job.get("raw_description", ""),
-                "pdate": datetime.now(timezone.utc),
-                "raw_hash": ch,
-            },
-        )
-        if result.rowcount > 0:
-            count += 1
-    return count
-
-
 def crawl_source(session, source_id: int, name: str, list_url: str, fetcher_type: str, parser_type: str) -> dict:
     result = {"inserted": 0, "skipped": 0, "error": ""}
 
@@ -162,27 +120,20 @@ def crawl_source(session, source_id: int, name: str, list_url: str, fetcher_type
 def run():
     session = get_session()
 
-    sample_count = insert_sample_jobs(session)
-    if sample_count > 0:
-        session.commit()
-        print(f"[sample] Inserted {sample_count} sample jobs.")
-
     sources = session.execute(
         text("SELECT id, name, list_url, fetcher_type, parser_type FROM sources WHERE enabled = true")
     ).fetchall()
 
-    total_inserted = sample_count
+    total_inserted = 0
     total_skipped = 0
-    source_count = 0
 
     for src in sources:
         sid, name, list_url, fetcher_type, parser_type = src
-        source_count += 1
         print(f"[{name}] Crawling {list_url} ...")
 
-        if not list_url or list_url.startswith("http://example") or "example" in list_url:
-            print(f"[{name}] Skipped (example/test URL)")
-            log_crawl(session, sid, "success", 0, 0, 0)
+        if not list_url:
+            print(f"[{name}] Skipped (no URL)")
+            log_crawl(session, sid, "failed", 0, 0, 0, "No list_url configured")
             session.commit()
             continue
 
@@ -197,7 +148,7 @@ def run():
         print(f"  -> inserted={r['inserted']} skipped={r['skipped']} {'error=' + r['error'] if r['error'] else ''}")
 
     session.close()
-    print(f"Done. Sources: {source_count}, Inserted: {total_inserted}, Skipped: {total_skipped}.")
+    print(f"Done. Sources: {len(sources)}, Inserted: {total_inserted}, Skipped: {total_skipped}.")
 
 
 if __name__ == "__main__":

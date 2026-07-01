@@ -25,20 +25,10 @@ jobs:
           pip install -r services/crawler/requirements.txt
           pip install -r services/analyzer/requirements.txt
 
-      - name: Run Daily Crawl
+      - name: Run Daily Pipeline
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: python scripts/crawl_daily.py
-
-      - name: Normalize Jobs
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: python scripts/normalize_jobs.py
-
-      - name: Generate Daily Stats
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: python scripts/generate_daily_stats.py
+        run: python scripts/run_pipeline.py
 
       - name: Trigger Cloudflare Pages Deploy
         if: success()
