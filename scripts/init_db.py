@@ -5,9 +5,8 @@ import sys
 
 from sqlalchemy import text
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "services", "crawler"))
-
-from storage.db import get_engine
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from services.crawler.storage.db import get_engine
 
 MIGRATION_PATH = os.path.join(
     os.path.dirname(__file__), "..", "packages", "db", "migrations", "001_init.sql"

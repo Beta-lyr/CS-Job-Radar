@@ -7,8 +7,11 @@ from datetime import datetime, timezone
 
 from sqlalchemy import text
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "services", "crawler"))
-from storage.db import get_session
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from services.crawler.storage.db import get_session
+from services.analyzer.extractors.skill_extractor import extract_skills
+from services.analyzer.classifiers.fresh_graduate_classifier import classify_fresh_graduate, classify_internship, classify_campus
+from services.analyzer.classifiers.confidence_scorer import calc_confidence
 
 
 def parse_salary(text: str) -> dict:
@@ -117,8 +120,13 @@ def detect_direction(title: str, desc: str) -> str:
 
 def run():
     session = get_session()
+
+    source_types = dict(session.execute(
+        text("SELECT id, source_type FROM sources")
+    ).fetchall())
+
     rows = session.execute(
-        text("SELECT id, raw_title, raw_company, raw_city, raw_salary, raw_education, raw_experience, raw_description, publish_date FROM raw_jobs WHERE parse_status = 'pending'")
+        text("SELECT id, source_id, raw_title, raw_company, raw_city, raw_salary, raw_education, raw_experience, raw_description, publish_date FROM raw_jobs WHERE parse_status = 'pending'")
     ).fetchall()
 
     if not rows:
@@ -129,6 +137,7 @@ def run():
     count = 0
     for row in rows:
         rid = row.id
+        source_id = row.source_id
         title = row.raw_title or ""
         company = row.raw_company or ""
         raw_city = row.raw_city or ""
@@ -136,6 +145,7 @@ def run():
         raw_edu = row.raw_education or ""
         raw_exp = row.raw_experience or ""
         desc = row.raw_description or ""
+        publish_date = row.publish_date
 
         salary = parse_salary(raw_salary)
         city, district = normalize_city(raw_city)
@@ -143,10 +153,17 @@ def run():
         exp = normalize_experience(raw_exp)
         direction = detect_direction(title, desc)
 
+        is_friendly, fresh_score = classify_fresh_graduate(title, desc, exp, edu)
+        is_internship = classify_internship(title, desc)
+        is_campus = classify_campus(title, desc)
+
+        source_type = source_types.get(source_id, "university")
+        confidence = calc_confidence(source_type, title, company, city, raw_salary, desc, publish_date, direction)
+
         session.execute(
             text("""
-                INSERT INTO jobs (raw_job_id, title, company_name, city, district, salary_text, salary_min_monthly, salary_max_monthly, salary_median_monthly, salary_months, salary_type, education_text, education_level, experience_text, experience_level, direction, description_clean, publish_date, fetched_at)
-                VALUES (:rid, :title, :company, :city, :district, :stext, :smin, :smax, :smed, :smonths, :stype, :edutext, :edulevel, :exptext, :explevel, :dir, :desc, :pdate, :fetched)
+                INSERT INTO jobs (raw_job_id, title, company_name, city, district, salary_text, salary_min_monthly, salary_max_monthly, salary_median_monthly, salary_months, salary_type, education_text, education_level, experience_text, experience_level, direction, is_internship, is_campus, is_fresh_graduate_friendly, fresh_graduate_score, description_clean, confidence_score, publish_date, fetched_at)
+                VALUES (:rid, :title, :company, :city, :district, :stext, :smin, :smax, :smed, :smonths, :stype, :edutext, :edulevel, :exptext, :explevel, :dir, :intern, :campus, :friendly, :fresh_score, :desc, :conf, :pdate, :fetched)
                 ON CONFLICT (raw_job_id) DO NOTHING
             """),
             {
@@ -156,10 +173,36 @@ def run():
                 "smed": salary.get("median"), "smonths": salary.get("months"), "stype": salary.get("type"),
                 "edutext": raw_edu, "edulevel": edu,
                 "exptext": raw_exp, "explevel": exp,
-                "dir": direction, "desc": desc[:5000],
-                "pdate": row.publish_date, "fetched": datetime.now(timezone.utc),
+                "dir": direction, "intern": is_internship, "campus": is_campus,
+                "friendly": is_friendly, "fresh_score": fresh_score,
+                "desc": desc[:5000], "conf": confidence,
+                "pdate": publish_date, "fetched": datetime.now(timezone.utc),
             },
         )
+
+        job_result = session.execute(
+            text("SELECT id FROM jobs WHERE raw_job_id = :rid"),
+            {"rid": rid},
+        ).fetchone()
+
+        if job_result:
+            job_id = job_result.id
+            skills = extract_skills(title, desc)
+            for skill in skills:
+                session.execute(
+                    text("""
+                        INSERT INTO job_skills (job_id, skill_name, skill_category, is_required, is_bonus, confidence)
+                        VALUES (:job_id, :name, :category, :required, :bonus, :conf)
+                    """),
+                    {
+                        "job_id": job_id,
+                        "name": skill["skill_name"],
+                        "category": skill["skill_category"],
+                        "required": skill["is_required"],
+                        "bonus": skill["is_bonus"],
+                        "conf": skill["confidence"],
+                    },
+                )
 
         session.execute(
             text("UPDATE raw_jobs SET parse_status = 'parsed', updated_at = now() WHERE id = :id"),

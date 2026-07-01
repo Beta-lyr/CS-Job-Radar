@@ -4,9 +4,8 @@ import json
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "services", "crawler"))
-
-from storage.db import get_session
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from services.crawler.storage.db import get_session
 from sqlalchemy import text
 
 SOURCES_PATH = os.path.join(
