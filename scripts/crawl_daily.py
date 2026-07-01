@@ -14,7 +14,8 @@ from services.crawler.fetchers.static_fetcher import StaticFetcher
 from services.crawler.fetchers.playwright_fetcher import PlaywrightFetcher
 from services.crawler.fetchers.base import BaseFetcher
 from services.crawler.parsers.generic_parser import GenericParser
-from services.crawler.parsers.base import BaseParser, RawJobDTO
+from services.crawler.parsers.base import RawJobDTO
+from scripts.sources import load_source_script
 
 MAX_DETAIL_PAGES = 30
 MAX_JOBS_PER_SOURCE = 100
@@ -24,29 +25,6 @@ def get_fetcher(fetcher_type: str) -> BaseFetcher:
     if fetcher_type == "playwright":
         return PlaywrightFetcher()
     return StaticFetcher()
-
-
-def get_parser(parser_type: str) -> BaseParser:
-    return GenericParser()
-
-
-def log_crawl(session, source_id: int, status: str, fetched: int, inserted: int, skipped: int = 0, error: str = ""):
-    session.execute(
-        text("""
-            INSERT INTO crawl_logs (source_id, status, started_at, finished_at, fetched_count, inserted_count, skipped_count, error_message)
-            VALUES (:sid, :st, :started, :finished, :fetched, :inserted, :skipped, :error)
-        """),
-        {
-            "sid": source_id,
-            "st": status,
-            "started": datetime.now(timezone.utc),
-            "finished": datetime.now(timezone.utc),
-            "fetched": fetched,
-            "inserted": inserted,
-            "skipped": skipped,
-            "error": error,
-        },
-    )
 
 
 def insert_raw_job(session, source_id: int, job: RawJobDTO, source_url_hash: str, raw_hash_val: str) -> bool:
@@ -74,12 +52,25 @@ def insert_raw_job(session, source_id: int, job: RawJobDTO, source_url_hash: str
     return result.rowcount > 0
 
 
-def crawl_source(session, source_id: int, name: str, list_url: str, fetcher_type: str, parser_type: str) -> dict:
-    result = {"inserted": 0, "skipped": 0, "error": ""}
+def log_crawl(session, source_id: int, status: str, fetched: int, inserted: int, skipped: int = 0, error: str = ""):
+    session.execute(
+        text("""
+            INSERT INTO crawl_logs (source_id, status, started_at, finished_at, fetched_count, inserted_count, skipped_count, error_message)
+            VALUES (:sid, :st, :started, :finished, :fetched, :inserted, :skipped, :error)
+        """),
+        {
+            "sid": source_id, "st": status,
+            "started": datetime.now(timezone.utc), "finished": datetime.now(timezone.utc),
+            "fetched": fetched, "inserted": inserted, "skipped": skipped, "error": error,
+        },
+    )
 
+
+def crawl_with_generic_parser(session, source_id: int, list_url: str, fetcher_type: str) -> dict:
+    result = {"inserted": 0, "skipped": 0, "error": ""}
     try:
         fetcher = get_fetcher(fetcher_type)
-        parser = get_parser(parser_type)
+        parser = GenericParser()
 
         list_html = fetcher.fetch(list_url)
         detail_urls = parser.parse_list(list_html, list_url)
@@ -121,14 +112,14 @@ def run():
     session = get_session()
 
     sources = session.execute(
-        text("SELECT id, name, list_url, fetcher_type, parser_type FROM sources WHERE enabled = true")
+        text("SELECT id, slug, name, list_url, fetcher_type FROM sources WHERE enabled = true")
     ).fetchall()
 
     total_inserted = 0
     total_skipped = 0
 
     for src in sources:
-        sid, name, list_url, fetcher_type, parser_type = src
+        sid, slug, name, list_url, fetcher_type = src
         print(f"[{name}] Crawling {list_url} ...")
 
         if not list_url:
@@ -137,15 +128,28 @@ def run():
             session.commit()
             continue
 
-        r = crawl_source(session, sid, name, list_url, fetcher_type or "static", parser_type or "generic")
+        fetcher = get_fetcher(fetcher_type or "static")
+        script = load_source_script(slug) if slug else None
+
+        if script:
+            print(f"  -> using dedicated script: sources/{slug}.py")
+            try:
+                r = script.crawl(session, sid, list_url, fetcher)
+            except Exception as e:
+                traceback.print_exc()
+                r = {"inserted": 0, "skipped": 0, "error": str(e)[:500]}
+        else:
+            r = crawl_with_generic_parser(session, sid, list_url, fetcher_type)
+
         total_inserted += r["inserted"]
         total_skipped += r["skipped"]
 
-        status = "success" if not r["error"] else ("partial_success" if r["inserted"] > 0 else "failed")
-        log_crawl(session, sid, status, r["inserted"] + r["skipped"], r["inserted"], r["skipped"], r["error"])
+        status = "success" if not r.get("error") else ("partial_success" if r.get("inserted", 0) > 0 else "failed")
+        fcount = r.get("inserted", 0) + r.get("skipped", 0)
+        log_crawl(session, sid, status, fcount, r.get("inserted", 0), r.get("skipped", 0), r.get("error", ""))
         session.commit()
 
-        print(f"  -> inserted={r['inserted']} skipped={r['skipped']} {'error=' + r['error'] if r['error'] else ''}")
+        print(f"  -> inserted={r['inserted']} skipped={r['skipped']} {'error=' + r['error'] if r.get('error') else ''}")
 
     session.close()
     print(f"Done. Sources: {len(sources)}, Inserted: {total_inserted}, Skipped: {total_skipped}.")

@@ -1,5 +1,6 @@
 [
   {
+    "slug": "tsinghua",
     "name": "清华大学学生职业发展指导中心",
     "source_type": "university",
     "base_url": "https://career.tsinghua.edu.cn",
@@ -10,10 +11,10 @@
     "fetcher_type": "static",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 24,
-    "note": "原 list_url /zwjy.htm 返回 404，先用官网首页作为 seed，后续从首页解析招聘相关入口。"
+    "crawl_interval_hours": 24
   },
   {
+    "slug": "pku",
     "name": "北京大学学生就业指导服务中心",
     "source_type": "university",
     "base_url": "https://scc.pku.edu.cn",
@@ -24,10 +25,10 @@
     "fetcher_type": "static",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 24,
-    "note": "原 list_url 是单个职位详情/申请页，不适合作为列表页，先用首页作为 seed。"
+    "crawl_interval_hours": 24
   },
   {
+    "slug": "buaa",
     "name": "北京航空航天大学就业信息网",
     "source_type": "university",
     "base_url": "https://career.buaa.edu.cn",
@@ -38,10 +39,10 @@
     "fetcher_type": "static",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 24,
-    "note": "原 /front/zpxx.jspa 返回 404，先用就业信息网首页作为 seed。"
+    "crawl_interval_hours": 24
   },
   {
+    "slug": "bupt",
     "name": "北京邮电大学就业信息网",
     "source_type": "university",
     "base_url": "https://job.bupt.edu.cn",
@@ -52,10 +53,10 @@
     "fetcher_type": "playwright",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 24,
-    "note": "原 /front/zpxx.jspa 访问异常；第三方目录指向 frontpage/bupt/html/index.html，建议用 Playwright 验证。"
+    "crawl_interval_hours": 24
   },
   {
+    "slug": "sjtu",
     "name": "上海交通大学学生就业服务和职业发展中心",
     "source_type": "university",
     "base_url": "https://www.job.sjtu.edu.cn",
@@ -66,10 +67,10 @@
     "fetcher_type": "static",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 24,
-    "note": "原复杂 URL 会重定向到 /career/index，页面可见招聘信息、实习信息、宣讲会等模块。"
+    "crawl_interval_hours": 24
   },
   {
+    "slug": "zju",
     "name": "浙江大学就业服务平台",
     "source_type": "university",
     "base_url": "https://www.career.zju.edu.cn",
@@ -80,10 +81,10 @@
     "fetcher_type": "playwright",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 24,
-    "note": "就业服务平台首页可见招聘信息模块，复杂 zf URL 后续需要单独确认参数和列表结构。"
+    "crawl_interval_hours": 24
   },
   {
+    "slug": "hust",
     "name": "华中科技大学就业信息网",
     "source_type": "university",
     "base_url": "https://hust.91wllm.cn",
@@ -94,10 +95,10 @@
     "fetcher_type": "playwright",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 24,
-    "note": "原 job.hust.edu.cn/zpinfo/xnzpinfo.htm 返回 404；当前搜索结果显示 hust.91wllm.cn 为就业信息网入口。"
+    "crawl_interval_hours": 24
   },
   {
+    "slug": "xidian",
     "name": "西安电子科技大学就业信息网",
     "source_type": "university",
     "base_url": "https://job.xidian.edu.cn",
@@ -108,10 +109,10 @@
     "fetcher_type": "static",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 24,
-    "note": "首页可见招聘公告、宣讲会、组团招聘等模块，先用首页作为 seed。"
+    "crawl_interval_hours": 24
   },
   {
+    "slug": "uestc",
     "name": "电子科技大学就业网",
     "source_type": "university",
     "base_url": "https://jiuye.uestc.edu.cn",
@@ -122,10 +123,10 @@
     "fetcher_type": "static",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 24,
-    "note": "首页可见招聘信息、现场招聘、网上招聘、实习招聘等模块。"
+    "crawl_interval_hours": 24
   },
   {
+    "slug": "scut",
     "name": "华南理工大学就业网",
     "source_type": "university",
     "base_url": "https://scut.ncss.cn",
@@ -136,10 +137,10 @@
     "fetcher_type": "playwright",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 24,
-    "note": "原 jyzx 随机子域名返回 502；scut.ncss.cn 可见最新职位，建议作为替代入口。"
+    "crawl_interval_hours": 24
   },
   {
+    "slug": "nju",
     "name": "南京大学学生就业指导中心",
     "source_type": "university",
     "base_url": "https://job.nju.edu.cn",
@@ -150,10 +151,10 @@
     "fetcher_type": "static",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 24,
-    "note": "原 #!/more/fulltimejob 是前端路由，先用 job.nju.edu.cn 首页作为 seed；另有 nju.91job.org.cn 需要 JS。"
+    "crawl_interval_hours": 24
   },
   {
+    "slug": "sysu",
     "name": "中山大学就业信息网",
     "source_type": "university",
     "base_url": "https://career.sysu.edu.cn",
@@ -164,10 +165,10 @@
     "fetcher_type": "playwright",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 24,
-    "note": "career.sysu.edu.cn 是官方就业信息入口；原 /zpxx 在工具中返回 403，建议用首页 seed 或改用 sysu.ncss.cn 镜像岗位源。"
+    "crawl_interval_hours": 24
   },
   {
+    "slug": "sysu-ncss",
     "name": "中山大学就业网-国家大学生就业服务平台镜像",
     "source_type": "official_platform",
     "base_url": "https://sysu.ncss.cn",
@@ -178,10 +179,10 @@
     "fetcher_type": "playwright",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 24,
-    "note": "可作为 career.sysu.edu.cn 的备选岗位源，先禁用，后续单独验证。"
+    "crawl_interval_hours": 24
   },
   {
+    "slug": "huawei",
     "name": "华为校园招聘",
     "source_type": "campus_recruitment",
     "base_url": "https://career.huawei.com",
@@ -192,10 +193,10 @@
     "fetcher_type": "playwright",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 48,
-    "note": "新版中文校招职位列表入口，建议企业源第二阶段再启用。"
+    "crawl_interval_hours": 48
   },
   {
+    "slug": "bytedance",
     "name": "字节跳动校园招聘",
     "source_type": "campus_recruitment",
     "base_url": "https://jobs.bytedance.com",
@@ -206,10 +207,10 @@
     "fetcher_type": "playwright",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 48,
-    "note": "校园招聘首页为 /campus；职位页可先尝试 /campus/m/position。"
+    "crawl_interval_hours": 48
   },
   {
+    "slug": "tencent",
     "name": "腾讯校园招聘",
     "source_type": "campus_recruitment",
     "base_url": "https://join.qq.com",
@@ -220,10 +221,10 @@
     "fetcher_type": "playwright",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 48,
-    "note": "腾讯校招岗位投递入口。"
+    "crawl_interval_hours": 48
   },
   {
+    "slug": "alibaba",
     "name": "阿里巴巴校园招聘",
     "source_type": "campus_recruitment",
     "base_url": "https://campus-talent.alibaba.com",
@@ -234,10 +235,10 @@
     "fetcher_type": "playwright",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 48,
-    "note": "阿里校招入口建议改为 campus-talent.alibaba.com；具体职位列表 batchId 可能变化，不建议写死。"
+    "crawl_interval_hours": 48
   },
   {
+    "slug": "meituan",
     "name": "美团校园招聘",
     "source_type": "campus_recruitment",
     "base_url": "https://zhaopin.meituan.com",
@@ -248,10 +249,10 @@
     "fetcher_type": "playwright",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 48,
-    "note": "原 campus.meituan.com/jobs 建议替换为 zhaopin.meituan.com/web/campus。"
+    "crawl_interval_hours": 48
   },
   {
+    "slug": "ncss",
     "name": "国家大学生就业服务平台",
     "source_type": "official_platform",
     "base_url": "https://www.ncss.cn",
@@ -262,7 +263,6 @@
     "fetcher_type": "playwright",
     "risk_level": "low",
     "enabled": true,
-    "crawl_interval_hours": 24,
-    "note": "国家大学生就业服务平台为教育部主管公共就业服务平台；岗位页可能需要动态渲染，先禁用，后续单独验证。"
+    "crawl_interval_hours": 24
   }
 ]

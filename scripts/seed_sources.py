@@ -26,15 +26,15 @@ def seed():
 
     for s in sources:
         existing = session.execute(
-            text("SELECT id FROM sources WHERE name = :name"),
-            {"name": s["name"]},
+            text("SELECT id FROM sources WHERE slug = :slug"),
+            {"slug": s["slug"]},
         ).fetchone()
 
         if existing:
             session.execute(
                 text("""
                     UPDATE sources SET
-                        source_type = :source_type, base_url = :base_url, list_url = :list_url,
+                        name = :name, source_type = :source_type, base_url = :base_url, list_url = :list_url,
                         city = :city, industry = :industry, parser_type = :parser_type,
                         fetcher_type = :fetcher_type, risk_level = :risk_level,
                         enabled = :enabled, crawl_interval_hours = :crawl_interval_hours,
@@ -48,8 +48,8 @@ def seed():
         else:
             session.execute(
                 text("""
-                    INSERT INTO sources (name, source_type, base_url, list_url, city, industry, parser_type, fetcher_type, risk_level, enabled, crawl_interval_hours)
-                    VALUES (:name, :source_type, :base_url, :list_url, :city, :industry, :parser_type, :fetcher_type, :risk_level, :enabled, :crawl_interval_hours)
+                    INSERT INTO sources (slug, name, source_type, base_url, list_url, city, industry, parser_type, fetcher_type, risk_level, enabled, crawl_interval_hours)
+                    VALUES (:slug, :name, :source_type, :base_url, :list_url, :city, :industry, :parser_type, :fetcher_type, :risk_level, :enabled, :crawl_interval_hours)
                 """),
                 s,
             )

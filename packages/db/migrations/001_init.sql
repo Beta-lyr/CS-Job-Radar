@@ -4,6 +4,7 @@
 -- 数据源表
 CREATE TABLE IF NOT EXISTS sources (
   id BIGSERIAL PRIMARY KEY,
+  slug TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
   source_type TEXT NOT NULL,
   base_url TEXT,
