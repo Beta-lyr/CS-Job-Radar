@@ -1,5 +1,6 @@
 """标准化脚本：处理 raw_jobs -> 写入 jobs + job_skills。"""
 
+import json
 import os
 import re
 import sys
@@ -94,22 +95,32 @@ def normalize_experience(raw: str) -> str:
     return "unknown"
 
 
+def _load_direction_rules() -> dict:
+    path = os.path.join(os.path.dirname(__file__), "..", "data", "direction-rules", "rules.json")
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+_direction_rules: dict | None = None
+
+
 def detect_direction(title: str, desc: str) -> str:
-    text = (title or "") + " " + (desc or "")
-    text_lower = text.lower()
+    global _direction_rules
+    if _direction_rules is None:
+        _direction_rules = _load_direction_rules()
 
-    rules = {
-        "java_backend": ["java", "spring boot", "mybatis", "jvm", "dubbo"],
-        "go_backend": ["golang", "go语言", "gin ", "grpc"],
-        "frontend": ["react", "vue", "typescript", "前端", "css"],
-        "android": ["android", "kotlin", "jetpack", "compose"],
-        "ai_application": ["llm", "大模型", "rag", "agent", "langchain"],
-        "test_development": ["测试开发", "自动化测试", "selenium", "pytest"],
-    }
+    title_lower = (title or "").lower()
+    desc_lower = (desc or "").lower()
 
-    scores = {}
-    for direction, keywords in rules.items():
-        score = sum(2 if kw in text_lower else 0 for kw in keywords)
+    scores: dict[str, int] = {}
+    for direction, rule in _direction_rules.items():
+        score = 0
+        for kw in rule.get("title_keywords", []):
+            if kw in title_lower:
+                score += rule.get("title_weight", 5)
+        for kw in rule.get("jd_keywords", []):
+            if kw in desc_lower:
+                score += rule.get("jd_weight", 3)
         if score > 0:
             scores[direction] = score
 
