@@ -1253,5 +1253,170 @@
       "di"
     ],
     "category": "concept"
+  },
+  {
+    "name": "PCB",
+    "aliases": ["pcb", "线路板", "印制电路板"],
+    "category": "hardware"
+  },
+  {
+    "name": "Schematic Design",
+    "aliases": ["原理图", "原理图设计", "schematic"],
+    "category": "hardware"
+  },
+  {
+    "name": "BOM",
+    "aliases": ["bom", "物料清单"],
+    "category": "hardware"
+  },
+  {
+    "name": "Oscilloscope",
+    "aliases": ["示波器"],
+    "category": "hardware"
+  },
+  {
+    "name": "Multimeter",
+    "aliases": ["万用表"],
+    "category": "hardware"
+  },
+  {
+    "name": "PADS",
+    "aliases": ["pads"],
+    "category": "hardware_tool"
+  },
+  {
+    "name": "ORCAD",
+    "aliases": ["orcad"],
+    "category": "hardware_tool"
+  },
+  {
+    "name": "Altium Designer",
+    "aliases": ["altium", "altium designer", "ad软件"],
+    "category": "hardware_tool"
+  },
+  {
+    "name": "FPGA",
+    "aliases": ["fpga"],
+    "category": "semiconductor"
+  },
+  {
+    "name": "Verilog",
+    "aliases": ["verilog", "verilog hdl"],
+    "category": "semiconductor"
+  },
+  {
+    "name": "VHDL",
+    "aliases": ["vhdl"],
+    "category": "semiconductor"
+  },
+  {
+    "name": "EDA",
+    "aliases": ["eda", "eda工具"],
+    "category": "semiconductor"
+  },
+  {
+    "name": "ASIC",
+    "aliases": ["asic"],
+    "category": "semiconductor"
+  },
+  {
+    "name": "MMIC",
+    "aliases": ["mmic"],
+    "category": "semiconductor"
+  },
+  {
+    "name": "RF",
+    "aliases": ["射频", "rf", "radio frequency"],
+    "category": "communication"
+  },
+  {
+    "name": "Microwave",
+    "aliases": ["微波"],
+    "category": "communication"
+  },
+  {
+    "name": "IC Design",
+    "aliases": ["芯片设计", "集成电路设计", "ic设计"],
+    "category": "semiconductor"
+  },
+  {
+    "name": "Semiconductor",
+    "aliases": ["半导体", "晶圆", "封装测试"],
+    "category": "semiconductor"
+  },
+  {
+    "name": "5G",
+    "aliases": ["5g", "第五代移动通信"],
+    "category": "communication"
+  },
+  {
+    "name": "4G",
+    "aliases": ["4g", "lte"],
+    "category": "communication"
+  },
+  {
+    "name": "Base Station",
+    "aliases": ["基站"],
+    "category": "communication"
+  },
+  {
+    "name": "Network Optimization",
+    "aliases": ["网络优化", "网优"],
+    "category": "communication"
+  },
+  {
+    "name": "Routing and Switching",
+    "aliases": ["路由交换", "路由", "交换机"],
+    "category": "network"
+  },
+  {
+    "name": "TCP/IP",
+    "aliases": ["tcp/ip", "tcp ip"],
+    "category": "network"
+  },
+  {
+    "name": "Communication Protocols",
+    "aliases": ["通信协议", "无线协议"],
+    "category": "communication"
+  },
+  {
+    "name": "ERP",
+    "aliases": ["erp", "erp系统"],
+    "category": "enterprise_system"
+  },
+  {
+    "name": "System Deployment",
+    "aliases": ["系统部署", "部署实施", "软件部署"],
+    "category": "operation"
+  },
+  {
+    "name": "Troubleshooting",
+    "aliases": ["故障排查", "问题排查", "故障定位"],
+    "category": "operation"
+  },
+  {
+    "name": "Windows Server",
+    "aliases": ["windows server"],
+    "category": "operation"
+  },
+  {
+    "name": "Remote Support",
+    "aliases": ["远程支持", "远程运维"],
+    "category": "operation"
+  },
+  {
+    "name": "Technical Documentation",
+    "aliases": ["技术文档", "实施文档", "运维文档"],
+    "category": "tooling"
+  },
+  {
+    "name": "Requirement Analysis",
+    "aliases": ["需求调研", "需求分析"],
+    "category": "concept"
+  },
+  {
+    "name": "Solution Design",
+    "aliases": ["解决方案", "技术方案", "方案设计"],
+    "category": "concept"
   }
 ]

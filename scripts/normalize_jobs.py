@@ -15,6 +15,7 @@ from services.crawler.storage.db import get_session
 from services.analyzer.extractors.skill_extractor import extract_skills
 from services.analyzer.classifiers.fresh_graduate_classifier import classify_fresh_graduate, classify_internship, classify_campus
 from services.analyzer.classifiers.confidence_scorer import calc_confidence
+from services.analyzer.normalizers.city_normalizer import normalize_city as normalize_city_from_rules
 
 
 def parse_salary(text: str) -> dict:
@@ -52,15 +53,7 @@ def parse_salary(text: str) -> dict:
 
 
 def normalize_city(raw: str) -> tuple:
-    if not raw:
-        return ("", "")
-    raw = raw.strip()
-    raw = re.sub(r"[市区县]", "", raw)
-    for city in ["北京", "上海", "深圳", "杭州", "广州"]:
-        if city in raw:
-            rest = raw.replace(city, "").strip()
-            return (city, rest)
-    return ("other", raw)
+    return normalize_city_from_rules(raw)
 
 
 def normalize_education(raw: str) -> str:
