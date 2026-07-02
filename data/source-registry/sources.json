@@ -10,7 +10,7 @@
     "parser_type": "university",
     "fetcher_type": "static",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 24
   },
   {
@@ -24,7 +24,7 @@
     "parser_type": "university",
     "fetcher_type": "static",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 24
   },
   {
@@ -38,7 +38,7 @@
     "parser_type": "university",
     "fetcher_type": "static",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 24
   },
   {
@@ -52,7 +52,7 @@
     "parser_type": "university",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 24
   },
   {
@@ -66,7 +66,7 @@
     "parser_type": "university",
     "fetcher_type": "static",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 24
   },
   {
@@ -80,7 +80,7 @@
     "parser_type": "university",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 24
   },
   {
@@ -94,7 +94,7 @@
     "parser_type": "university",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 24
   },
   {
@@ -108,7 +108,7 @@
     "parser_type": "university",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 24
   },
   {
@@ -122,7 +122,7 @@
     "parser_type": "university",
     "fetcher_type": "static",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 24
   },
   {
@@ -136,7 +136,7 @@
     "parser_type": "university",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 24
   },
   {
@@ -150,7 +150,7 @@
     "parser_type": "university",
     "fetcher_type": "static",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 24
   },
   {
@@ -164,7 +164,7 @@
     "parser_type": "university",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 24
   },
   {
@@ -178,7 +178,7 @@
     "parser_type": "generic",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 24
   },
   {
@@ -192,7 +192,7 @@
     "parser_type": "company",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 48
   },
   {
@@ -206,7 +206,7 @@
     "parser_type": "company",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 48
   },
   {
@@ -220,7 +220,7 @@
     "parser_type": "company",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 48
   },
   {
@@ -234,7 +234,7 @@
     "parser_type": "company",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 48
   },
   {
@@ -248,7 +248,7 @@
     "parser_type": "company",
     "fetcher_type": "playwright",
     "risk_level": "low",
-    "enabled": true,
+    "enabled": false,
     "crawl_interval_hours": 48
   },
   {

@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { getDirectionOverview, getDirectionCities, getDirectionSkills, getAllDirections } from "@/lib/directions"
 import { getDirectionLabel, getDirectionSkills as getMetaSkills, getDirectionProjects, formatSalary, formatNumber } from "@/lib/format"
-import type { DirectionOverview, CityStat, SkillStat } from "@/types/stats"
 import { notFound } from "next/navigation"
 
 export async function generateStaticParams() {

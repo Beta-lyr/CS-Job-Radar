@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { getHomeOverview, getDirectionStats, getTopSkills, getLatestReport } from "@/lib/stats"
-import { getDirectionLabel, getDirectionSkills, getChangeLabel, formatSalary, formatNumber, formatWeekRange } from "@/lib/format"
+import { getDirectionLabel, getDirectionSkills, getChangeLabel, formatSalary, formatNumber } from "@/lib/format"
 
 export default async function HomePage() {
   const [overview, directions, skills, report] = await Promise.all([
@@ -132,7 +132,7 @@ export default async function HomePage() {
               <p className="section-kicker">Direction Analysis</p>
               <h2 className="section-title">技术方向观察</h2>
               <p className="section-desc">
-                这里不把"岗位多"直接等同于"值得学"，而是结合岗位数量、应届友好度、技能门槛和薪资区间综合判断。
+                这里不把「岗位多」直接等同于「值得学」，而是结合岗位数量、应届友好度、技能门槛和薪资区间综合判断。
               </p>
             </div>
             <a className="section-link" href="#">查看完整方向库 →</a>
@@ -257,7 +257,7 @@ export default async function HomePage() {
                 <div className="flow-num">3</div>
                 <div>
                   <h3>把趋势转成项目</h3>
-                  <p>最终要落到可写进简历的项目，而不是停留在"我知道这个方向很热"。</p>
+                  <p>最终要落到可写进简历的项目，而不是停留在「我知道这个方向很热」。</p>
                 </div>
               </div>
             </div>
@@ -273,7 +273,7 @@ export default async function HomePage() {
               <p className="section-kicker">Project Planning</p>
               <h2 className="section-title">从岗位要求反推项目选题</h2>
               <p className="section-desc">
-                这个模块不做"项目大全"，而是基于近期岗位要求，给出更适合学生简历表达和面试讲解的项目方向。
+                这个模块不做「项目大全」，而是基于近期岗位要求，给出更适合学生简历表达和面试讲解的项目方向。
               </p>
             </div>
             <a className="section-link" href="#">查看项目库 →</a>
@@ -335,7 +335,7 @@ export default async function HomePage() {
               <div className="method-item"><span>1</span> 优先展示聚合统计，不复制岗位详情</div>
               <div className="method-item"><span>2</span> 每个指标都能解释口径和样本范围</div>
               <div className="method-item"><span>3</span> 用表格、条形图、摘要卡片承载信息</div>
-              <div className="method-item"><span>4</span> 文案避免"逆袭""保 offer""AI 预测未来"等营销表达</div>
+              <div className="method-item"><span>4</span> 文案避免「逆袭」「保 offer」「AI 预测未来」等营销表达</div>
               <div className="method-item"><span>5</span> 让学生读完后知道该学什么、做什么项目</div>
             </div>
           </div>

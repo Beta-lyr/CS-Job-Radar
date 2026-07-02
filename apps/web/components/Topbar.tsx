@@ -13,14 +13,14 @@ export default function Topbar() {
         </Link>
 
         <nav className="nav-links" aria-label="主导航">
-          <a href="/#directions">方向观察</a>
-          <a href="/#skills">技能要求</a>
-          <a href="/#reports">周度报告</a>
-          <a href="/#projects">项目建议</a>
-          <a href="/data-methodology">数据方法</a>
+          <Link href="/#directions">方向观察</Link>
+          <Link href="/#skills">技能要求</Link>
+          <Link href="/#reports">周度报告</Link>
+          <Link href="/#projects">项目建议</Link>
+          <Link href="/data-methodology">数据方法</Link>
         </nav>
 
-        <a className="nav-action" href="/#reports">查看本周报告</a>
+        <Link className="nav-action" href="/#reports">查看本周报告</Link>
         <button className="menu-button" aria-label="打开菜单">☰</button>
       </div>
     </header>
