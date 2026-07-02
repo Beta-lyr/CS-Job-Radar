@@ -4,12 +4,12 @@ import json
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from services.crawler.storage.db import get_session
 from sqlalchemy import text
 
 SOURCES_PATH = os.path.join(
-    os.path.dirname(__file__), "..", "data", "source-registry", "sources.json"
+    os.path.dirname(__file__), "..", "..", "data", "source-registry", "sources.json"
 )
 
 

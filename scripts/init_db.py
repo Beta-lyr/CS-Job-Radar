@@ -4,7 +4,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from migrate import auto_migrate
+from db.migrate import auto_migrate
 
 if __name__ == "__main__":
     auto_migrate()

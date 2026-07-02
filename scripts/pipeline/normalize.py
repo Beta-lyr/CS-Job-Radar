@@ -10,7 +10,7 @@ from sqlalchemy import text
 
 BJ_TZ = timezone(timedelta(hours=8))
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from services.crawler.storage.db import get_session
 from services.analyzer.extractors.skill_extractor import extract_skills
 from services.analyzer.classifiers.fresh_graduate_classifier import classify_fresh_graduate, classify_internship, classify_campus

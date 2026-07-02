@@ -7,7 +7,7 @@ import os
 SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 sys.path.insert(0, SCRIPTS_DIR)
-from migrate import auto_migrate
+from db.migrate import auto_migrate
 
 
 def run_script(name: str):
@@ -24,8 +24,8 @@ def run_script(name: str):
 
 if __name__ == "__main__":
     auto_migrate()
-    run_script("seed_sources.py")
-    run_script("crawl_daily.py")
-    run_script("normalize_jobs.py")
-    run_script("generate_daily_stats.py")
+    run_script("pipeline/seed.py")
+    run_script("pipeline/crawl.py")
+    run_script("pipeline/normalize.py")
+    run_script("pipeline/stats.py")
     print("\nDaily pipeline completed.")

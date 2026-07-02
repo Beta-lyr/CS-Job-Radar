@@ -8,12 +8,12 @@ import os
 import sys
 
 _MIGRATIONS_DIR = os.path.normpath(
-    os.path.join(os.path.dirname(__file__), "..", "packages", "db", "migrations")
+    os.path.join(os.path.dirname(__file__), "..", "..", "packages", "db", "migrations")
 )
 
 
 def _get_engine():
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
     from services.crawler.storage.db import get_engine as _engine_fn
 
     return _engine_fn()

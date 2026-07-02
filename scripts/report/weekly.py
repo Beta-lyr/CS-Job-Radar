@@ -7,11 +7,10 @@ from datetime import date, timedelta
 
 from sqlalchemy import text
 
-SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, SCRIPTS_DIR)
-from migrate import auto_migrate
-
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from db.migrate import auto_migrate
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from services.crawler.storage.db import get_session
 
 DIRECTION_LABELS = {

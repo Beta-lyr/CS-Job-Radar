@@ -10,7 +10,7 @@ from sqlalchemy import text
 
 BJ_TZ = timezone(timedelta(hours=8))
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from services.crawler.storage.db import get_session
 from services.crawler.fetchers.static_fetcher import StaticFetcher
 from services.crawler.fetchers.playwright_fetcher import PlaywrightFetcher

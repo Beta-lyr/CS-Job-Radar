@@ -27,4 +27,4 @@ jobs:
       - name: Generate Weekly Report
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: python scripts/generate_weekly_report.py
+        run: python scripts/report/weekly.py

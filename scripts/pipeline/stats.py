@@ -7,7 +7,7 @@ from datetime import date, datetime, timezone
 
 from sqlalchemy import text
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from services.crawler.storage.db import get_session
 
 
