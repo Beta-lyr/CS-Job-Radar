@@ -2,6 +2,7 @@ import json
 import subprocess
 import sys
 import os
+import tempfile
 from urllib.parse import urlparse
 
 from .base import BaseFetcher
@@ -37,13 +38,31 @@ class PlaywrightFetcher(BaseFetcher):
         domain = urlparse(urls[0]).netloc
         _rate_limiter.wait(domain)
 
-        result = subprocess.run(
-            [sys.executable, _HELPER_SCRIPT, "--batch"] + urls,
-            capture_output=True,
-            timeout=len(urls) * 60 + 30,
-            env={**os.environ, "PYTHONIOENCODING": "utf-8"},
-        )
-        if result.returncode != 0:
-            err = result.stderr.decode("utf-8", errors="replace").strip()
-            raise RuntimeError(f"Playwright batch fetch failed: {err}")
-        return json.loads(result.stdout.decode("utf-8", errors="replace"))
+        all_results: dict[str, str] = {}
+        chunk_size = 20
+
+        for i in range(0, len(urls), chunk_size):
+            chunk = urls[i:i + chunk_size]
+            with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tmp:
+                tmp_path = tmp.name
+
+            try:
+                result = subprocess.run(
+                    [sys.executable, _HELPER_SCRIPT, "--batch", tmp_path] + chunk,
+                    capture_output=True,
+                    timeout=len(chunk) * 60 + 30,
+                    env={**os.environ, "PYTHONIOENCODING": "utf-8"},
+                )
+                if result.returncode != 0:
+                    err = result.stderr.decode("utf-8", errors="replace").strip()
+                    raise RuntimeError(f"Playwright batch fetch failed: {err}")
+
+                with open(tmp_path, "r", encoding="utf-8") as f:
+                    all_results.update(json.load(f))
+            finally:
+                try:
+                    os.unlink(tmp_path)
+                except Exception:
+                    pass
+
+        return all_results

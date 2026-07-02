@@ -1,7 +1,7 @@
 """子进程脚本：用 Playwright sync API 抓取 URL 的 HTML。
 用法:
-  python _playwright_fetch.py <url>                 # 单个 URL，输出 HTML
-  python _playwright_fetch.py --batch <url1> <url2>  # 批量，输出 JSON {url: html}
+  python _playwright_fetch.py <url>                          # 单个 URL，输出 HTML
+  python _playwright_fetch.py --batch <out.json> <url1> <url2> # 批量，写入 JSON 文件
 """
 
 import json
@@ -56,11 +56,13 @@ def main():
         sys.exit(1)
 
     if sys.argv[1] == "--batch":
-        urls = sys.argv[2:]
+        out_path = sys.argv[2]
+        urls = sys.argv[3:]
         if not urls:
             sys.exit(1)
         results = fetch_batch(urls)
-        sys.stdout.buffer.write(json.dumps(results, ensure_ascii=False).encode("utf-8"))
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(results, f, ensure_ascii=False)
     else:
         html = fetch_one(sys.argv[1])
         sys.stdout.buffer.write(html.encode("utf-8"))
