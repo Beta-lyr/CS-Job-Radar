@@ -1,0 +1,218 @@
+[
+  {
+    "directions": ["java_backend"],
+    "required_skills": ["Spring Boot", "Redis", "Docker", "MySQL", "RabbitMQ"],
+    "title": "在线判题系统简化版",
+    "description": "适合覆盖任务队列、Docker 沙箱、判题调度、权限和日志。",
+    "tags": ["Spring Boot", "Redis", "Docker", "MySQL"],
+    "difficulty": "进阶",
+    "resume_value": "高"
+  },
+  {
+    "directions": ["java_backend"],
+    "required_skills": ["Spring Cloud", "Redis", "JWT", "PostgreSQL", "OAuth2"],
+    "title": "API 网关与权限中心",
+    "description": "适合展示路由转发、限流熔断、OAuth2 认证和审计日志。",
+    "tags": ["Spring Cloud", "Redis", "JWT", "PostgreSQL"],
+    "difficulty": "进阶",
+    "resume_value": "高"
+  },
+  {
+    "directions": ["go_backend"],
+    "required_skills": ["Go", "gRPC", "Prometheus", "Kubernetes", "Docker"],
+    "title": "云原生微服务监控平台",
+    "description": "适合展示服务发现、指标采集、告警规则和仪表盘。",
+    "tags": ["Go", "gRPC", "Prometheus", "K8s"],
+    "difficulty": "挑战",
+    "resume_value": "高"
+  },
+  {
+    "directions": ["go_backend"],
+    "required_skills": ["Go", "Redis", "gRPC", "MongoDB", "Docker"],
+    "title": "分布式任务调度系统",
+    "description": "适合展示 DAG 编排、worker 池、失败重试和日志追踪。",
+    "tags": ["Go", "Redis", "gRPC", "MongoDB"],
+    "difficulty": "挑战",
+    "resume_value": "高"
+  },
+  {
+    "directions": ["frontend"],
+    "required_skills": ["React", "TypeScript", "Storybook", "Vitest", "Tailwind"],
+    "title": "组件库与文档站搭建",
+    "description": "适合展示组件设计、TypeScript 类型、Storybook 和自动化测试。",
+    "tags": ["React", "TypeScript", "Storybook", "Vitest"],
+    "difficulty": "进阶",
+    "resume_value": "高"
+  },
+  {
+    "directions": ["frontend"],
+    "required_skills": ["React", "TypeScript", "Zustand", "Tailwind", "JSON Schema"],
+    "title": "低代码表单引擎",
+    "description": "适合展示拖拽渲染、JSON Schema、表达式引擎和自定义组件。",
+    "tags": ["React", "TypeScript", "Zustand", "Tailwind"],
+    "difficulty": "挑战",
+    "resume_value": "高"
+  },
+  {
+    "directions": ["android"],
+    "required_skills": ["Kotlin", "Jetpack Compose", "Media3", "Room", "Coroutines"],
+    "title": "音乐播放器 App",
+    "description": "适合展示 Media3 播放、通知栏控制、后台服务和缓存策略。",
+    "tags": ["Kotlin", "Jetpack Compose", "Media3", "Room"],
+    "difficulty": "进阶",
+    "resume_value": "中"
+  },
+  {
+    "directions": ["android"],
+    "required_skills": ["Kotlin", "Jetpack Compose", "SQLite", "MPAndroidChart", "MVVM"],
+    "title": "钱包账单管理 App",
+    "description": "适合展示图表统计、分类标签、搜索过滤和数据导出。",
+    "tags": ["Kotlin", "Compose", "MPAndroidChart", "SQLite"],
+    "difficulty": "入门",
+    "resume_value": "中"
+  },
+  {
+    "directions": ["ai_application"],
+    "required_skills": ["Python", "LangChain", "RAG", "PostgreSQL", "FastAPI"],
+    "title": "岗位匹配与简历分析系统",
+    "description": "适合展示 RAG、文档解析、岗位匹配、报告生成和服务部署能力。",
+    "tags": ["Next.js", "Python", "RAG", "PostgreSQL"],
+    "difficulty": "挑战",
+    "resume_value": "高"
+  },
+  {
+    "directions": ["ai_application"],
+    "required_skills": ["Python", "LangChain", "Milvus", "FastAPI", "Embedding"],
+    "title": "知识库问答机器人",
+    "description": "适合展示文档切片、向量检索、Prompt 管理和多轮对话。",
+    "tags": ["Python", "LangChain", "Milvus", "FastAPI"],
+    "difficulty": "进阶",
+    "resume_value": "高"
+  },
+  {
+    "directions": ["test_development"],
+    "required_skills": ["Python", "Pytest", "Flask", "Docker", "PostgreSQL"],
+    "title": "接口自动化测试平台",
+    "description": "适合展示用例管理、数据驱动、断言库和报告生成。",
+    "tags": ["Python", "Pytest", "Flask", "Docker"],
+    "difficulty": "进阶",
+    "resume_value": "中"
+  },
+  {
+    "directions": ["test_development"],
+    "required_skills": ["Python", "JMeter", "InfluxDB", "Grafana", "Docker"],
+    "title": "性能压测与监控平台",
+    "description": "适合展示分布式压测、指标采集、报告聚合和告警。",
+    "tags": ["Python", "JMeter", "InfluxDB", "Grafana"],
+    "difficulty": "进阶",
+    "resume_value": "中"
+  },
+  {
+    "directions": ["cpp_system"],
+    "required_skills": ["C++", "QT", "TCP/IP", "SQLite", "串口通信"],
+    "title": "桌面端设备控制工具",
+    "description": "适合展示 C++ 工程能力、设备通信、日志追踪和异常处理。",
+    "tags": ["C++", "QT", "TCP/IP", "SQLite"],
+    "difficulty": "进阶",
+    "resume_value": "中"
+  },
+  {
+    "directions": ["cpp_system"],
+    "required_skills": ["C++", "多线程", "索引", "内存管理", "Linux"],
+    "title": "高性能日志检索器",
+    "description": "适合覆盖文件索引、多线程、内存管理和性能优化。",
+    "tags": ["C++", "多线程", "索引", "性能优化"],
+    "difficulty": "挑战",
+    "resume_value": "高"
+  },
+  {
+    "directions": ["embedded"],
+    "required_skills": ["C", "STM32", "RTOS", "MQTT", "传感器"],
+    "title": "环境监测终端",
+    "description": "适合展示传感器采集、串口通信、数据上报和低功耗设计。",
+    "tags": ["C", "STM32", "RTOS", "MQTT"],
+    "difficulty": "进阶",
+    "resume_value": "高"
+  },
+  {
+    "directions": ["hardware"],
+    "required_skills": ["PCB", "示波器", "串口", "原理图", "硬件调试"],
+    "title": "开发板外设测试平台",
+    "description": "适合展示原理图阅读、硬件调试、测试记录和问题定位。",
+    "tags": ["PCB", "示波器", "串口", "硬件测试"],
+    "difficulty": "入门",
+    "resume_value": "中"
+  },
+  {
+    "directions": ["semiconductor"],
+    "required_skills": ["FPGA", "Verilog", "EDA", "仿真", "时序约束"],
+    "title": "FPGA 信号处理 Demo",
+    "description": "适合展示 Verilog、仿真、时序约束和测试报告。",
+    "tags": ["FPGA", "Verilog", "EDA", "仿真"],
+    "difficulty": "挑战",
+    "resume_value": "高"
+  },
+  {
+    "directions": ["communication"],
+    "required_skills": ["TCP/IP", "Linux", "网络优化", "Grafana", "路由交换"],
+    "title": "网络质量监测工具",
+    "description": "适合展示链路探测、指标采集、告警和可视化分析。",
+    "tags": ["TCP/IP", "Linux", "网络优化", "Grafana"],
+    "difficulty": "进阶",
+    "resume_value": "中"
+  },
+  {
+    "directions": ["it_support_implementation"],
+    "required_skills": ["Linux", "ERP", "部署", "故障排查", "Shell"],
+    "title": "企业系统部署与运维手册",
+    "description": "适合展示部署脚本、故障排查流程、监控和客户培训文档。",
+    "tags": ["Linux", "ERP", "部署", "故障排查"],
+    "difficulty": "入门",
+    "resume_value": "中"
+  },
+  {
+    "directions": ["product_manager"],
+    "required_skills": ["PRD", "原型", "数据分析", "SQL", "Axure"],
+    "title": "岗位数据看板 PRD",
+    "description": "适合展示需求分析、指标设计、原型说明和数据口径。",
+    "tags": ["PRD", "原型", "数据分析", "SQL"],
+    "difficulty": "入门",
+    "resume_value": "中"
+  },
+  {
+    "directions": ["java_backend", "ai_application"],
+    "required_skills": ["Spring Boot", "Python", "Redis", "PostgreSQL", "Docker"],
+    "title": "智能招聘信息聚合平台",
+    "description": "适合展示后端 API + 数据清洗 + AI 技能提取 + 前端展示的完整链路。",
+    "tags": ["Spring Boot", "Python", "Vue", "PostgreSQL"],
+    "difficulty": "挑战",
+    "resume_value": "高"
+  },
+  {
+    "directions": ["frontend", "java_backend"],
+    "required_skills": ["React", "Spring Boot", "TypeScript", "MySQL", "Docker"],
+    "title": "校园二手交易平台",
+    "description": "适合展示完整业务链路，包括发布、搜索、订单、后台和部署。",
+    "tags": ["React", "Spring Boot", "MySQL", "Docker"],
+    "difficulty": "进阶",
+    "resume_value": "高"
+  },
+  {
+    "directions": ["ai_application", "frontend"],
+    "required_skills": ["Next.js", "Python", "LangChain", "TypeScript", "Supabase"],
+    "title": "AI 驱动的学习路径规划器",
+    "description": "适合展示 LLM 对话 + 前端状态管理 + 数据库设计 + 部署全流程。",
+    "tags": ["Next.js", "Python", "LangChain", "Supabase"],
+    "difficulty": "挑战",
+    "resume_value": "高"
+  },
+  {
+    "directions": ["embedded", "hardware"],
+    "required_skills": ["C", "STM32", "PCB", "RTOS", "BLE"],
+    "title": "智能家居控制面板",
+    "description": "适合展示 BLE 通信、触摸屏驱动、传感器融合和低功耗设计。",
+    "tags": ["C", "STM32", "PCB", "BLE"],
+    "difficulty": "挑战",
+    "resume_value": "高"
+  }
+]

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { getDirectionOverview, getDirectionCities, getDirectionSkills, getAllDirections } from "@/lib/directions"
-import { getDirectionLabel, getDirectionSkills as getMetaSkills, getDirectionProjects, formatSalary, formatNumber } from "@/lib/format"
+import { getDirectionLabel, getDirectionSkills as getMetaSkills, formatSalary, formatNumber } from "@/lib/format"
+import { getProjectsByDirection } from "@/lib/projects"
 import { notFound } from "next/navigation"
 
 export async function generateStaticParams() {
@@ -24,7 +25,7 @@ export default async function DirectionDetailPage({
 
   const label = getDirectionLabel(direction)
   const metaSkills = getMetaSkills(direction)
-  const projects = getDirectionProjects(direction)
+  const projects = getProjectsByDirection(direction)
   const friendlyRatio = overview.jobCount > 0
     ? Math.round((overview.friendlyCount / overview.jobCount) * 100)
     : 0
@@ -140,7 +141,7 @@ export default async function DirectionDetailPage({
             <div className="project-grid">
               {projects.map((p) => (
                 <article key={p.title} className="project-card">
-                  <div className="project-label">{p.label}</div>
+                  <div className="project-label">{p.directions.map((d) => getDirectionLabel(d)).join(" / ")}</div>
                   <h3>{p.title}</h3>
                   <p>{p.description}</p>
                   <div className="tags">

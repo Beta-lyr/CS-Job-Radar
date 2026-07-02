@@ -1,21 +1,45 @@
 import Link from "next/link"
-import { notFound } from "next/navigation"
 import { getAllReportSlugs, getReportBySlug } from "@/lib/reports"
 import { formatWeekRange } from "@/lib/format"
 
+export const dynamicParams = false
+
 export async function generateStaticParams() {
   const slugs = await getAllReportSlugs()
-  return slugs.map((slug) => ({ slug }))
+  if (slugs.length > 0) return slugs.map((s) => ({ slug: s }))
+  return [{ slug: "_placeholder" }]
 }
 
-export default async function ReportPage({
+export default async function ReportDetailPage({
   params,
 }: {
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
   const report = await getReportBySlug(slug)
-  if (!report) notFound()
+
+  if (!report) {
+    return (
+      <main>
+        <section className="hero" style={{ padding: "42px 0 24px" }}>
+          <div className="container">
+            <Link href="/reports" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--muted)", fontSize: 13, fontWeight: 750, marginBottom: 16 }}>
+              ← 返回历史周报
+            </Link>
+            <h1 style={{ margin: 0, fontSize: "clamp(28px, 4vw, 42px)", lineHeight: 1.1, letterSpacing: "-0.055em", fontWeight: 850 }}>
+              报告未找到
+            </h1>
+            <p style={{ margin: "12px 0 0", color: "var(--muted)", fontSize: 14 }}>
+              该报告可能尚未生成或已被移除。
+            </p>
+            <div style={{ marginTop: 24 }}>
+              <Link className="button-primary" href="/reports">查看所有报告</Link>
+            </div>
+          </div>
+        </section>
+      </main>
+    )
+  }
 
   const lines = report.contentMarkdown
     ? report.contentMarkdown.split("\n").filter(Boolean)
@@ -27,8 +51,8 @@ export default async function ReportPage({
     <main>
       <section className="hero" style={{ padding: "42px 0 24px" }}>
         <div className="container">
-          <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--muted)", fontSize: 13, fontWeight: 750, marginBottom: 16 }}>
-            ← 返回首页
+          <Link href="/reports" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--muted)", fontSize: 13, fontWeight: 750, marginBottom: 16 }}>
+            ← 返回历史周报
           </Link>
           <div className="report-badge" style={{ marginBottom: 14, display: "inline-flex" }}>WEEKLY REPORT</div>
           <h1 style={{ margin: 0, fontSize: "clamp(28px, 4vw, 42px)", lineHeight: 1.1, letterSpacing: "-0.055em", fontWeight: 850, maxWidth: 800 }}>
@@ -54,7 +78,7 @@ export default async function ReportPage({
 
           <div style={{ marginTop: 24, display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link className="button-primary" href="/">返回首页</Link>
-            <a className="button-secondary" href="#">查看历史报告</a>
+            <Link className="button-secondary" href="/reports">查看历史报告</Link>
           </div>
         </div>
       </section>

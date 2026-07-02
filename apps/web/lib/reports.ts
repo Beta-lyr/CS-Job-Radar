@@ -1,5 +1,25 @@
 import { query } from "@/lib/db"
-import type { ReportDetail } from "@/types/stats"
+import type { ReportDetail, WeeklyReportSummary } from "@/types/stats"
+
+export async function getAllReports(): Promise<WeeklyReportSummary[]> {
+  try {
+    const result = await query(`
+      SELECT title, slug, summary, week_start::text AS week_start, week_end::text AS week_end
+      FROM weekly_reports
+      ORDER BY week_start DESC
+    `)
+    return result.rows.map((row: { title: string; slug: string; summary: string; week_start: string; week_end: string }) => ({
+      title: row.title,
+      slug: row.slug,
+      summary: row.summary,
+      weekStart: row.week_start,
+      weekEnd: row.week_end,
+    }))
+  } catch (e) {
+    console.error("getAllReports error:", e)
+    return []
+  }
+}
 
 export async function getAllReportSlugs(): Promise<string[]> {
   try {

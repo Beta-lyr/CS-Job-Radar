@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { getHomeOverview, getDirectionStats, getTopSkills, getLatestReport } from "@/lib/stats"
 import { getDirectionLabel, getDirectionSkills, getChangeLabel, formatSalary, formatNumber } from "@/lib/format"
+import { getFeaturedProjects } from "@/lib/projects"
 
 export default async function HomePage() {
   const [overview, directions, skills, report] = await Promise.all([
@@ -9,6 +10,24 @@ export default async function HomePage() {
     getTopSkills(),
     getLatestReport(),
   ])
+
+  const hotDirections = directions.slice(0, 3).map((d) => d.direction)
+  const topSkillNames = skills.slice(0, 10).map((s) => s.skillName)
+  const featuredProjects = getFeaturedProjects(hotDirections, topSkillNames, 3)
+
+  function generateFallbackReportSummary(): string {
+    if (directions.length === 0) return "暂无足够岗位样本生成趋势判断，请在数据更新后查看。"
+    const topDir = getDirectionLabel(directions[0].direction)
+    const parts = [`本周样本中，${topDir}方向岗位数最多`]
+    if (directions.length >= 2) {
+      parts.push(`${getDirectionLabel(directions[1].direction)}紧随其后`)
+    }
+    const highSalary = directions.filter((d) => d.salaryMedian && d.salaryMedian > 15000)
+    if (highSalary.length > 0) {
+      parts.push(`${getDirectionLabel(highSalary[0].direction)}薪资中位数较高`)
+    }
+    return parts.join("；") + "。"
+  }
 
   const today = new Date()
   const weekNumber = Math.ceil(((today.getTime() - new Date(today.getFullYear(), 0, 1).getTime()) / 86400000 + today.getDay() + 1) / 7)
@@ -135,7 +154,7 @@ export default async function HomePage() {
                 这里不把「岗位多」直接等同于「值得学」，而是结合岗位数量、应届友好度、技能门槛和薪资区间综合判断。
               </p>
             </div>
-            <a className="section-link" href="#">查看完整方向库 →</a>
+            <a className="section-link" href="/projects">查看完整方向库 →</a>
           </div>
 
           <div className="analysis-grid">
@@ -219,11 +238,11 @@ export default async function HomePage() {
           <div className="report-grid">
             <article className="article-card">
               <div className="article-label">WEEKLY REPORT</div>
-              <h2>{report ? report.title : "本周结论：Java 仍然稳，AI 应用升温，但项目门槛更高。"}</h2>
+              <h2>{report ? report.title : "本周方向趋势简报"}</h2>
               <p>
                 {report
                   ? report.summary
-                  : "本周公开岗位样本显示，Java 后端仍然是最稳定的应届技术方向之一；AI 应用开发岗位增长明显，但企业更看重完整项目经验，包括数据处理、检索增强、接口封装、部署和业务闭环。"}
+                  : generateFallbackReportSummary()}
               </p>
 
               <div className="editorial-quote">
@@ -231,8 +250,10 @@ export default async function HomePage() {
               </div>
 
               <div className="article-actions">
-                <Link className="button-primary" href={report ? `/reports/${report.slug}` : "#"}>阅读完整周报</Link>
-                <a className="button-secondary" href="#">查看历史报告</a>
+                <Link className="button-primary" href={report ? `/reports/${report.slug}` : "/reports"}>
+                  {report ? "阅读完整周报" : "暂无本周报告"}
+                </Link>
+                <Link className="button-secondary" href="/reports">查看历史报告</Link>
               </div>
             </article>
 
@@ -276,45 +297,26 @@ export default async function HomePage() {
                 这个模块不做「项目大全」，而是基于近期岗位要求，给出更适合学生简历表达和面试讲解的项目方向。
               </p>
             </div>
-            <a className="section-link" href="#">查看项目库 →</a>
+            <a className="section-link" href="/projects">查看项目库 →</a>
           </div>
 
           <div className="project-grid">
-            <article className="project-card">
-              <div className="project-label">AI 应用方向</div>
-              <h3>岗位匹配与简历分析系统</h3>
-              <p>适合展示 RAG、文档解析、岗位匹配、报告生成和服务部署能力。</p>
-              <div className="tags">
-                <span>Next.js</span>
-                <span>Python</span>
-                <span>RAG</span>
-                <span>PostgreSQL</span>
+            {featuredProjects.length > 0 ? (
+              featuredProjects.map((p) => (
+                <article key={p.title} className="project-card">
+                  <div className="project-label">{p.directions.map((d) => getDirectionLabel(d)).join(" / ")}</div>
+                  <h3>{p.title}</h3>
+                  <p>{p.description}</p>
+                  <div className="tags">
+                    {p.tags.map((t) => <span key={t}>{t}</span>)}
+                  </div>
+                </article>
+              ))
+            ) : (
+              <div className="article-card" style={{ padding: "32px 36px", textAlign: "center", gridColumn: "1 / -1" }}>
+                <p style={{ color: "var(--muted)", fontSize: 14, margin: 0 }}>暂无项目建议，项目库正在建设中。</p>
               </div>
-            </article>
-
-            <article className="project-card">
-              <div className="project-label">Java 后端方向</div>
-              <h3>在线判题系统简化版</h3>
-              <p>适合覆盖任务队列、Docker 沙箱、判题调度、权限和日志。</p>
-              <div className="tags">
-                <span>Spring Boot</span>
-                <span>Redis</span>
-                <span>Docker</span>
-                <span>MySQL</span>
-              </div>
-            </article>
-
-            <article className="project-card">
-              <div className="project-label">前后端综合</div>
-              <h3>校园二手交易平台</h3>
-              <p>适合展示完整业务链路，包括发布、搜索、订单、后台和部署。</p>
-              <div className="tags">
-                <span>React</span>
-                <span>API</span>
-                <span>权限</span>
-                <span>部署</span>
-              </div>
-            </article>
+            )}
           </div>
         </div>
       </section>
