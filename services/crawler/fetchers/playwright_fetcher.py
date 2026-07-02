@@ -1,3 +1,4 @@
+import json
 import subprocess
 import sys
 import os
@@ -26,3 +27,23 @@ class PlaywrightFetcher(BaseFetcher):
             err = result.stderr.decode("utf-8", errors="replace").strip()
             raise RuntimeError(f"Playwright fetch failed: {err}")
         return result.stdout.decode("utf-8", errors="replace")
+
+    def fetch_batch(self, urls: list[str]) -> dict[str, str]:
+        if not urls:
+            return {}
+        if len(urls) == 1:
+            return {urls[0]: self.fetch(urls[0])}
+
+        domain = urlparse(urls[0]).netloc
+        _rate_limiter.wait(domain)
+
+        result = subprocess.run(
+            [sys.executable, _HELPER_SCRIPT, "--batch"] + urls,
+            capture_output=True,
+            timeout=len(urls) * 60 + 30,
+            env={**os.environ, "PYTHONIOENCODING": "utf-8"},
+        )
+        if result.returncode != 0:
+            err = result.stderr.decode("utf-8", errors="replace").strip()
+            raise RuntimeError(f"Playwright batch fetch failed: {err}")
+        return json.loads(result.stdout.decode("utf-8", errors="replace"))

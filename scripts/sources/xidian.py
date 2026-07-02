@@ -9,7 +9,9 @@
 import re
 import sys
 import os
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+BJ_TZ = timezone(timedelta(hours=8))
 from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup
@@ -18,8 +20,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from services.crawler.utils.hash import url_hash, content_hash
 
 BASE_URL = "https://job.xidian.edu.cn"
-MAX_PAGES = 20
-MAX_JOBS_TOTAL = 200
+MAX_PAGES = 10
+MAX_JOBS_TOTAL = 100
 
 
 def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
@@ -47,9 +49,13 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
 
         detail_urls = list(all_links)[:MAX_JOBS_TOTAL]
 
+        batch_htmls = fetcher.fetch_batch(detail_urls) if hasattr(fetcher, "fetch_batch") else {}
+
         for detail_url in detail_urls:
             try:
-                detail_html = fetcher.fetch(detail_url)
+                detail_html = batch_htmls.get(detail_url, "")
+                if not detail_html:
+                    detail_html = fetcher.fetch(detail_url)
                 job = _parse_detail(detail_html, detail_url)
                 if not job.get("raw_title"):
                     continue
@@ -186,7 +192,7 @@ def _insert(session, source_id: int, job: dict, uh: str, ch: str) -> bool:
             "city": job.get("raw_city", ""), "salary": job.get("raw_salary", ""),
             "edu": job.get("raw_education", ""), "exp": job.get("raw_experience", ""),
             "desc": (job.get("raw_description", "") or "")[:8000].replace("\x00", ""),
-            "pdate": job.get("publish_date") or datetime.now(),
+            "pdate": job.get("publish_date") or datetime.now(BJ_TZ),
             "raw_hash": ch,
         },
     )

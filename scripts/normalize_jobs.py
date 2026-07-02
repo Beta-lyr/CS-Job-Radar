@@ -4,9 +4,11 @@ import json
 import os
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from sqlalchemy import text
+
+BJ_TZ = timezone(timedelta(hours=8))
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from services.crawler.storage.db import get_session
@@ -187,7 +189,7 @@ def run():
                 "dir": direction, "intern": is_internship, "campus": is_campus,
                 "friendly": is_friendly, "fresh_score": fresh_score,
                 "desc": desc[:5000], "conf": confidence,
-                "pdate": publish_date, "fetched": datetime.now(timezone.utc),
+                "pdate": publish_date, "fetched": datetime.now(BJ_TZ),
             },
         )
 
