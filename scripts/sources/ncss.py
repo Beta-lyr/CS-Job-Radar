@@ -1,5 +1,6 @@
 """Crawler for 国家大学生就业服务平台 computer/internet jobs."""
 
+import json
 import os
 import re
 import sys
@@ -27,29 +28,23 @@ REQUEST_TIMEOUT = 30
 MAX_RETRIES = 2
 LIST_REQUEST_INTERVAL_SECONDS = 0.3
 
-IT_INDUSTRY_CODES = [
-    "000101",  # 计算机软件
-    "000102",  # 计算机硬件
-    "000103",  # 计算机服务（系统/数据/维护/安全）
-    "000104",  # 互联网/电子商务
-    "000105",  # 网络游戏
-    "000106",  # 通信/电信设备、运营、增值服务
-    "000108",  # 通信技术开发及应用
-    "000109",  # 电子技术/半导体/集成电路
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+NCSS_PRESET_PATH = os.path.join(REPO_ROOT, "data", "source-presets", "ncss.json")
+CS_CRAWL_PRESET_PATH = os.path.join(REPO_ROOT, "data", "crawl-presets", "cs_jobs.json")
+CITY_PRESET_PATH = os.path.join(REPO_ROOT, "data", "geo", "cities.json")
+
+DEFAULT_INDUSTRIES = [
+    {"code": "000101", "name": "计算机软件"},
+    {"code": "000102", "name": "计算机硬件"},
+    {"code": "000103", "name": "系统/数据/维护/安全"},
+    {"code": "000104", "name": "互联网/电子商务"},
+    {"code": "000105", "name": "网络游戏"},
+    {"code": "000106", "name": "通信/电信服务"},
+    {"code": "000108", "name": "通信技术开发及应用"},
+    {"code": "000109", "name": "电子/半导体/集成电路"},
 ]
 
-IT_INDUSTRY_NAMES = {
-    "000101": "计算机软件",
-    "000102": "计算机硬件",
-    "000103": "系统/数据/维护/安全",
-    "000104": "互联网/电子商务",
-    "000105": "网络游戏",
-    "000106": "通信/电信服务",
-    "000108": "通信技术开发及应用",
-    "000109": "电子/半导体/集成电路",
-}
-
-KEYWORD_QUERIES = [
+DEFAULT_KEYWORD_QUERIES = [
     "Java",
     "后端",
     "前端",
@@ -70,7 +65,7 @@ KEYWORD_QUERIES = [
     "产品经理",
 ]
 
-AREA_CODES = {
+DEFAULT_AREA_CODES = {
     "北京": "11",
     "上海": "31",
     "江苏": "32",
@@ -81,7 +76,7 @@ AREA_CODES = {
     "陕西": "61",
 }
 
-JOB_TYPES = {
+DEFAULT_JOB_TYPES = {
     "全职": "01",
     "实习": "03",
 }
@@ -168,6 +163,12 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
 
 
 def _build_query_plan() -> list[dict]:
+    preset = _load_crawl_config()
+    industries = preset["industries"]
+    keyword_queries = preset["keyword_queries"]
+    area_codes = preset["area_codes"]
+    job_types = preset["job_types"]
+
     queries: list[dict] = []
     seen_keys: set[tuple] = set()
 
@@ -184,25 +185,89 @@ def _build_query_plan() -> list[dict]:
             "job_type": job_type,
         })
 
-    for industry_code in IT_INDUSTRY_CODES:
-        industry_name = IT_INDUSTRY_NAMES.get(industry_code, industry_code)
+    for industry in industries:
+        industry_code = industry["code"]
+        industry_name = industry["name"]
         add(f"行业:{industry_name}", industry_code=industry_code)
-        for job_type_name, job_type in JOB_TYPES.items():
+        for job_type_name, job_type in job_types.items():
             add(f"行业:{industry_name}/{job_type_name}", industry_code=industry_code, job_type=job_type)
 
-    for keyword in KEYWORD_QUERIES:
+    for keyword in keyword_queries:
         add(f"关键词:{keyword}", job_name=keyword)
-        for area_name, area_code in AREA_CODES.items():
+        for area_name, area_code in area_codes.items():
             add(f"关键词:{keyword}/{area_name}", job_name=keyword, area_code=area_code)
-        for job_type_name, job_type in JOB_TYPES.items():
+        for job_type_name, job_type in job_types.items():
             add(f"关键词:{keyword}/{job_type_name}", job_name=keyword, job_type=job_type)
 
-    for area_name, area_code in AREA_CODES.items():
-        for industry_code in IT_INDUSTRY_CODES:
-            industry_name = IT_INDUSTRY_NAMES.get(industry_code, industry_code)
+    for area_name, area_code in area_codes.items():
+        for industry in industries:
+            industry_code = industry["code"]
+            industry_name = industry["name"]
             add(f"地区:{area_name}/{industry_name}", industry_code=industry_code, area_code=area_code)
 
     return queries
+
+
+def _load_crawl_config() -> dict:
+    source_preset = _read_json(NCSS_PRESET_PATH, {})
+    crawl_preset = _read_json(CS_CRAWL_PRESET_PATH, {})
+    city_preset = _read_json(CITY_PRESET_PATH, {})
+
+    industries = _normalize_industries(source_preset.get("industries")) or DEFAULT_INDUSTRIES
+    keyword_queries = _normalize_string_list(crawl_preset.get("search_keywords")) or DEFAULT_KEYWORD_QUERIES
+    area_codes = _normalize_string_map(
+        (((city_preset.get("__source_codes") or {}).get("ncss") or {}).get("area_codes") or {})
+    ) or DEFAULT_AREA_CODES
+    job_types = _normalize_string_map(source_preset.get("job_types")) or DEFAULT_JOB_TYPES
+
+    return {
+        "industries": industries,
+        "keyword_queries": keyword_queries,
+        "area_codes": area_codes,
+        "job_types": job_types,
+    }
+
+
+def _read_json(path: str, default):
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return default
+
+
+def _normalize_industries(value) -> list[dict]:
+    industries = []
+    for item in value or []:
+        if not isinstance(item, dict):
+            continue
+        code = _clean_text(item.get("code"))
+        name = _clean_text(item.get("name")) or code
+        if code:
+            industries.append({"code": code, "name": name})
+    return industries
+
+
+def _normalize_string_list(value) -> list[str]:
+    normalized = []
+    seen = set()
+    for item in value or []:
+        text = _clean_text(item)
+        key = text.lower()
+        if text and key not in seen:
+            seen.add(key)
+            normalized.append(text)
+    return normalized
+
+
+def _normalize_string_map(value) -> dict[str, str]:
+    normalized = {}
+    for key, val in (value or {}).items():
+        name = _clean_text(key)
+        code = _clean_text(val)
+        if name and code:
+            normalized[name] = code
+    return normalized
 
 
 def _collect_page_jobs(jobs: list[dict], seen: set[str], rows: list[dict]) -> tuple[int, int, int]:
