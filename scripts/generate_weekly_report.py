@@ -1,4 +1,4 @@
-"""每周报告脚本：读取上周统计 -> 生成 Markdown 报告 -> 写入 weekly_reports。"""
+"""每周报告脚本：先自动迁移 -> 读取上周统计 -> 生成 Markdown 报告 -> 写入 weekly_reports。"""
 
 import json
 import os
@@ -6,6 +6,10 @@ import sys
 from datetime import date, timedelta
 
 from sqlalchemy import text
+
+SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, SCRIPTS_DIR)
+from migrate import auto_migrate
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from services.crawler.storage.db import get_session
@@ -29,6 +33,7 @@ def get_week_range() -> tuple:
 
 
 def run():
+    auto_migrate()
     session = get_session()
     week_start, week_end = get_week_range()
     slug = f"{week_start.isoformat()}-to-{week_end.isoformat()}"

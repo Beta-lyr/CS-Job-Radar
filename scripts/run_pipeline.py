@@ -1,10 +1,13 @@
-"""每日定时任务总流程：crawl -> normalize -> stats，一键执行。"""
+"""每日定时任务总流程：先自动迁移 -> crawl -> normalize -> stats，一键执行。"""
 
 import subprocess
 import sys
 import os
 
 SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
+
+sys.path.insert(0, SCRIPTS_DIR)
+from migrate import auto_migrate
 
 
 def run_script(name: str):
@@ -20,6 +23,7 @@ def run_script(name: str):
 
 
 if __name__ == "__main__":
+    auto_migrate()
     run_script("seed_sources.py")
     run_script("crawl_daily.py")
     run_script("normalize_jobs.py")
