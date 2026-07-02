@@ -20,9 +20,9 @@ BASE_URL = "https://www.ncss.cn"
 LIST_API = f"{BASE_URL}/student/jobs/jobslist/ajax/"
 DETAIL_URL = f"{BASE_URL}/student/jobs/{{job_id}}/detail.html"
 
-MAX_PAGES_PER_INDUSTRY = 10
+MAX_PAGES_PER_QUERY = 10
 PAGE_SIZE = 20
-MAX_JOBS_TOTAL = 500
+MAX_JOBS_TOTAL = 1200
 REQUEST_TIMEOUT = 30
 MAX_RETRIES = 2
 LIST_REQUEST_INTERVAL_SECONDS = 0.3
@@ -49,6 +49,43 @@ IT_INDUSTRY_NAMES = {
     "000109": "电子/半导体/集成电路",
 }
 
+KEYWORD_QUERIES = [
+    "Java",
+    "后端",
+    "前端",
+    "测试",
+    "运维",
+    "实施",
+    "C++",
+    "嵌入式",
+    "硬件",
+    "通信",
+    "射频",
+    "半导体",
+    "芯片",
+    "人工智能",
+    "大模型",
+    "数据分析",
+    "数据开发",
+    "产品经理",
+]
+
+AREA_CODES = {
+    "北京": "11",
+    "上海": "31",
+    "江苏": "32",
+    "浙江": "33",
+    "广东": "44",
+    "四川": "51",
+    "湖北": "42",
+    "陕西": "61",
+}
+
+JOB_TYPES = {
+    "全职": "01",
+    "实习": "03",
+}
+
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -68,36 +105,19 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
         rows = []
         filtered_count = 0
 
-        for industry_code in IT_INDUSTRY_CODES:
-            industry_name = IT_INDUSTRY_NAMES.get(industry_code, industry_code)
-            for page in range(1, MAX_PAGES_PER_INDUSTRY + 1):
-                data = _fetch_list(http, page, industry_code)
+        for query in _build_query_plan():
+            label = query["label"]
+            for page in range(1, MAX_PAGES_PER_QUERY + 1):
+                data = _fetch_list(http, page, query)
                 jobs = (((data or {}).get("data") or {}).get("list") or [])
                 if not jobs:
                     break
 
-                accepted = 0
-                duplicate_count = 0
-                for item in jobs:
-                    job_id = str(item.get("jobId") or "").strip()
-                    if not job_id:
-                        continue
-                    if job_id in seen:
-                        duplicate_count += 1
-                        continue
-                    seen.add(job_id)
-
-                    if not _is_relevant_it_job(item):
-                        filtered_count += 1
-                        continue
-
-                    rows.append(item)
-                    accepted += 1
-                    if len(rows) >= MAX_JOBS_TOTAL:
-                        break
+                accepted, duplicate_count, query_filtered = _collect_page_jobs(jobs, seen, rows)
+                filtered_count += query_filtered
 
                 print(
-                    f"  {industry_name} page {page}: "
+                    f"  {label} page {page}: "
                     f"{len(jobs)} jobs, {accepted} accepted, {duplicate_count} duplicate"
                 )
                 if len(rows) >= MAX_JOBS_TOTAL:
@@ -147,8 +167,72 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
     return result
 
 
-def _fetch_list(http: requests.Session, page: int, industry_code: str | None = None) -> dict:
-    industry_sectors = f"{industry_code}," if industry_code else ",".join(IT_INDUSTRY_CODES) + ","
+def _build_query_plan() -> list[dict]:
+    queries: list[dict] = []
+    seen_keys: set[tuple] = set()
+
+    def add(label: str, industry_code: str = "", job_name: str = "", area_code: str = "", job_type: str = ""):
+        key = (industry_code, job_name, area_code, job_type)
+        if key in seen_keys:
+            return
+        seen_keys.add(key)
+        queries.append({
+            "label": label,
+            "industry_code": industry_code,
+            "job_name": job_name,
+            "area_code": area_code,
+            "job_type": job_type,
+        })
+
+    for industry_code in IT_INDUSTRY_CODES:
+        industry_name = IT_INDUSTRY_NAMES.get(industry_code, industry_code)
+        add(f"行业:{industry_name}", industry_code=industry_code)
+        for job_type_name, job_type in JOB_TYPES.items():
+            add(f"行业:{industry_name}/{job_type_name}", industry_code=industry_code, job_type=job_type)
+
+    for keyword in KEYWORD_QUERIES:
+        add(f"关键词:{keyword}", job_name=keyword)
+        for area_name, area_code in AREA_CODES.items():
+            add(f"关键词:{keyword}/{area_name}", job_name=keyword, area_code=area_code)
+        for job_type_name, job_type in JOB_TYPES.items():
+            add(f"关键词:{keyword}/{job_type_name}", job_name=keyword, job_type=job_type)
+
+    for area_name, area_code in AREA_CODES.items():
+        for industry_code in IT_INDUSTRY_CODES:
+            industry_name = IT_INDUSTRY_NAMES.get(industry_code, industry_code)
+            add(f"地区:{area_name}/{industry_name}", industry_code=industry_code, area_code=area_code)
+
+    return queries
+
+
+def _collect_page_jobs(jobs: list[dict], seen: set[str], rows: list[dict]) -> tuple[int, int, int]:
+    accepted = 0
+    duplicate_count = 0
+    filtered_count = 0
+    for item in jobs:
+        job_id = str(item.get("jobId") or "").strip()
+        if not job_id:
+            continue
+        if job_id in seen:
+            duplicate_count += 1
+            continue
+        seen.add(job_id)
+
+        if not _is_relevant_it_job(item):
+            filtered_count += 1
+            continue
+
+        rows.append(item)
+        accepted += 1
+        if len(rows) >= MAX_JOBS_TOTAL:
+            break
+    return accepted, duplicate_count, filtered_count
+
+
+def _fetch_list(http: requests.Session, page: int, query: dict | None = None) -> dict:
+    query = query or {}
+    industry_code = query.get("industry_code", "")
+    industry_sectors = f"{industry_code}," if industry_code else ""
     params = {
         "jobType": "",
         "areaCode": "",
@@ -166,6 +250,13 @@ def _fetch_list(http: requests.Session, page: int, industry_code: str | None = N
         "sourcesName": "0",
         "sourcesType": "",
     }
+    if query.get("job_name"):
+        params["jobName"] = query["job_name"]
+    if query.get("area_code"):
+        params["areaCode"] = query["area_code"]
+    if query.get("job_type"):
+        params["jobType"] = query["job_type"]
+
     last_error = None
     for attempt in range(MAX_RETRIES + 1):
         try:
