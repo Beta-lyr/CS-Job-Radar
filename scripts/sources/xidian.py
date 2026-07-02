@@ -39,6 +39,7 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
                 html = fetcher.fetch(page_url)
                 page_links = set(_extract_job_links(html))
                 new_links = page_links - all_links
+                print(f"  page {page}: {len(page_links)} links, {len(new_links)} new")
                 if not new_links and page > 1:
                     break
                 all_links.update(page_links)
@@ -48,6 +49,7 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
                 break
 
         detail_urls = list(all_links)[:MAX_JOBS_TOTAL]
+        print(f"  total unique links: {len(detail_urls)}")
 
         batch_htmls = fetcher.fetch_batch(detail_urls) if hasattr(fetcher, "fetch_batch") else {}
 
