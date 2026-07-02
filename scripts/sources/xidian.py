@@ -108,9 +108,12 @@ def _parse_detail(html: str, url: str) -> dict:
     city = _extract_city(soup)
 
     salary_text = ""
-    salary_sel = soup.find(string=re.compile(r"薪资|月薪|待遇"))
-    if salary_sel:
-        salary_text = salary_sel.strip()
+    for m in re.finditer(r"(\d+[-~]\d+[Kk万wW].*?(?:薪|/月|/年)?)|(面议)|(薪资[：:]\s*\S+)", body_text):
+        t = m.group(0).strip()
+        if any(kw in t for kw in ["待遇", "福利", "薪酬结构"]):
+            continue
+        salary_text = t
+        break
 
     content_el = soup.select_one(".details-mge .info .aContent")
     description = content_el.get_text(separator="\n", strip=True) if content_el else ""
@@ -123,7 +126,10 @@ def _parse_detail(html: str, url: str) -> dict:
         description = description.get_text(separator="\n", strip=True) if description else ""
 
     body_text = soup.get_text()
-    education = _first_match(body_text, [r"学历[要求]?[：:]\s*(\S+)", r"学历(\S{2,4})"])
+    education = _first_match(body_text, [
+        r"学历[要求]?[：:]\s*(\S{2,6})",
+        r"(?:要求|具有)(博士|硕士|本科|大专|研究生)(?:学历|学位|及以上)",
+    ])
     experience = _first_match(body_text, [r"经验[要求]?[：:]\s*(\S+)", r"工作年限[：:]\s*(\S+)"])
 
     publish_date = _parse_date(date_str)
