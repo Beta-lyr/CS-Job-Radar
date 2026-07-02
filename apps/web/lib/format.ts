@@ -5,6 +5,13 @@ export const DIRECTION_LABELS: Record<string, string> = {
   android: "Android 开发",
   ai_application: "AI 应用开发",
   test_development: "测试开发",
+  cpp_system: "C++ / 系统开发",
+  embedded: "嵌入式开发",
+  hardware: "硬件开发",
+  semiconductor: "半导体 / 芯片",
+  communication: "通信网络",
+  it_support_implementation: "实施 / 技术支持",
+  product_manager: "技术产品",
 }
 
 export const DIRECTION_SKILLS: Record<string, string> = {
@@ -14,6 +21,13 @@ export const DIRECTION_SKILLS: Record<string, string> = {
   android: "Kotlin / Jetpack / Compose / Gradle",
   ai_application: "LLM / RAG / Agent / Python / 向量数据库",
   test_development: "自动化测试 / 接口测试 / 性能测试 / CI",
+  cpp_system: "C++ / Linux / MFC / QT / 性能优化",
+  embedded: "C / C++ / ARM / MCU / RTOS / 驱动",
+  hardware: "PCB / 原理图 / BOM / 示波器 / 硬件调试",
+  semiconductor: "FPGA / Verilog / EDA / 射频 / 集成电路",
+  communication: "5G / 网络优化 / TCP/IP / 路由交换",
+  it_support_implementation: "系统部署 / ERP / 故障排查 / Linux",
+  product_manager: "需求分析 / PRD / 原型 / 数据分析",
 }
 
 export function getDirectionLabel(direction: string): string {
@@ -85,9 +99,30 @@ export const DIRECTION_PROJECTS: Record<string, ProjectSuggestion[]> = {
     { label: "测试开发方向", title: "接口自动化测试平台", description: "适合展示用例管理、数据驱动、断言库和报告生成。", tags: ["Python", "Pytest", "Flask", "Docker"] },
     { label: "测试开发方向", title: "性能压测与监控平台", description: "适合展示分布式压测、指标采集、报告聚合和告警。", tags: ["Python", "JMeter", "InfluxDB", "Grafana"] },
   ],
+  cpp_system: [
+    { label: "C++ / 系统开发", title: "桌面端设备控制工具", description: "适合展示 C++ 工程能力、设备通信、日志追踪和异常处理。", tags: ["C++", "QT", "TCP/IP", "SQLite"] },
+    { label: "C++ / 系统开发", title: "高性能日志检索器", description: "适合覆盖文件索引、多线程、内存管理和性能优化。", tags: ["C++", "多线程", "索引", "性能优化"] },
+  ],
+  embedded: [
+    { label: "嵌入式方向", title: "环境监测终端", description: "适合展示传感器采集、串口通信、数据上报和低功耗设计。", tags: ["C", "STM32", "RTOS", "MQTT"] },
+  ],
+  hardware: [
+    { label: "硬件方向", title: "开发板外设测试平台", description: "适合展示原理图阅读、硬件调试、测试记录和问题定位。", tags: ["PCB", "示波器", "串口", "硬件测试"] },
+  ],
+  semiconductor: [
+    { label: "半导体方向", title: "FPGA 信号处理 Demo", description: "适合展示 Verilog、仿真、时序约束和测试报告。", tags: ["FPGA", "Verilog", "EDA", "仿真"] },
+  ],
+  communication: [
+    { label: "通信网络方向", title: "网络质量监测工具", description: "适合展示链路探测、指标采集、告警和可视化分析。", tags: ["TCP/IP", "Linux", "网络优化", "Grafana"] },
+  ],
+  it_support_implementation: [
+    { label: "实施 / 技术支持方向", title: "企业系统部署与运维手册", description: "适合展示部署脚本、故障排查流程、监控和客户培训文档。", tags: ["Linux", "ERP", "部署", "故障排查"] },
+  ],
+  product_manager: [
+    { label: "技术产品方向", title: "岗位数据看板 PRD", description: "适合展示需求分析、指标设计、原型说明和数据口径。", tags: ["PRD", "原型", "数据分析", "SQL"] },
+  ],
 }
 
 export function getDirectionProjects(direction: string): ProjectSuggestion[] {
   return DIRECTION_PROJECTS[direction] || []
 }
-
