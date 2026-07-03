@@ -23,6 +23,7 @@ export async function getCityOverview(city: string): Promise<CityOverview | null
         COUNT(DISTINCT direction)::int AS direction_count,
         COUNT(*) FILTER (WHERE is_fresh_graduate_friendly)::int AS friendly_count,
         ROUND(COUNT(*) FILTER (WHERE is_fresh_graduate_friendly) * 100.0 / NULLIF(COUNT(*), 0))::int AS friendly_ratio,
+        COUNT(salary_median_monthly)::int AS salary_sample_count,
         PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY salary_median_monthly)::int AS salary_median
       FROM jobs
       WHERE city = $1 AND fetched_at >= CURRENT_DATE - INTERVAL '30 days'
@@ -36,6 +37,7 @@ export async function getCityOverview(city: string): Promise<CityOverview | null
       friendlyCount: row.friendly_count,
       friendlyRatio: row.friendly_ratio,
       salaryMedian: row.salary_median,
+      salarySampleCount: row.salary_sample_count ?? 0,
     }
   } catch (e) {
     console.error("getCityOverview error:", e)
@@ -50,6 +52,7 @@ export async function getCityDirections(city: string): Promise<DirectionStat[]> 
         direction,
         COUNT(*)::int AS job_count,
         COUNT(*) FILTER (WHERE is_fresh_graduate_friendly)::int AS friendly_count,
+        COUNT(salary_median_monthly)::int AS salary_sample_count,
         PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY salary_median_monthly)::int AS salary_median
       FROM jobs
       WHERE city = $1 AND fetched_at >= CURRENT_DATE - INTERVAL '30 days'
@@ -58,11 +61,12 @@ export async function getCityDirections(city: string): Promise<DirectionStat[]> 
       ORDER BY COUNT(*) DESC
     `, [city])
     const maxJobs = Math.max(...result.rows.map((r: { job_count: number }) => r.job_count), 1)
-    return result.rows.map((r: { direction: string; job_count: number; friendly_count: number; salary_median: number | null }) => ({
+    return result.rows.map((r: { direction: string; job_count: number; friendly_count: number; salary_sample_count: number; salary_median: number | null }) => ({
       direction: r.direction,
       jobCount: r.job_count,
       friendlyCount: r.friendly_count,
       salaryMedian: r.salary_median,
+      salarySampleCount: r.salary_sample_count,
       topSkills: [],
       opportunityIndex: Math.round((r.job_count / maxJobs) * 100),
     }))

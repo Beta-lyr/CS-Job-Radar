@@ -10,6 +10,7 @@ export interface DirectionStat {
   jobCount: number
   friendlyCount: number
   salaryMedian: number | null
+  salarySampleCount?: number
   topSkills: string[]
   opportunityIndex: number
 }
@@ -36,6 +37,7 @@ export interface DirectionOverview {
   salaryMedian: number | null
   salaryP25: number | null
   salaryP75: number | null
+  salarySampleCount?: number
 }
 
 export interface CityStat {
@@ -49,6 +51,7 @@ export interface CityOverview {
   directionCount: number
   friendlyRatio: number
   salaryMedian: number | null
+  salarySampleCount: number
   friendlyCount: number
 }
 

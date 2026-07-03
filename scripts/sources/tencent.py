@@ -187,7 +187,7 @@ def _build_jobs(item: dict, detail: dict) -> list[dict]:
             "raw_title": title,
             "raw_company": "腾讯",
             "raw_city": city,
-            "raw_salary": "",
+            "raw_salary": "未公开",
             "raw_education": "本科及以上",
             "raw_experience": "应届/实习",
             "raw_description": description[:8000],

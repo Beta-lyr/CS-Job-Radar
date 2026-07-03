@@ -63,7 +63,11 @@ export default async function CityPage({
           <div className="stat-card">
             <span>中位薪资</span>
             <strong>{formatSalary(overview.salaryMedian)}</strong>
-            <p>该城市所有岗位中位数。</p>
+            <p>
+              {overview.salarySampleCount > 0
+                ? `基于 ${overview.salarySampleCount} 个公开薪资样本。`
+                : "该城市岗位薪资暂未公开。"}
+            </p>
           </div>
           <div className="stat-card">
             <span>应届友好占比</span>
@@ -100,7 +104,10 @@ export default async function CityPage({
                         <div className="bar-label"><span>机会指数</span><span>{d.opportunityIndex}</span></div>
                         <div className="bar-track"><span className="bar-fill" style={{ width: `${d.opportunityIndex}%` }}></span></div>
                       </div>
-                      <div className="salary">{formatSalary(d.salaryMedian)}<small>中位数</small></div>
+                      <div className="salary">
+                        {formatSalary(d.salaryMedian)}
+                        <small>{d.salarySampleCount ? `${d.salarySampleCount} 个薪资样本` : "薪资未公开"}</small>
+                      </div>
                     </Link>
                   )
                 })}
