@@ -1,0 +1,39 @@
+# 计算机学生技术岗位趋势报告
+## {{ week_start }} ~ {{ week_end }}
+
+### 一、本周趋势总结
+{{ analysis.trend_summary if analysis and analysis.trend_summary else default_summary }}
+
+### 二、方向热度排行
+| 排名 | 方向 | 岗位数量 | 环比变化 |
+|------|------|---------|---------|
+{%- for d in directions %}
+| {{ loop.index }} | {{ d.label }} | {{ d.count }} | {{ d.change }} |
+{%- endfor %}
+
+### 三、方向对比解读
+{{ analysis.direction_analysis if analysis and analysis.direction_analysis else default_direction }}
+
+### 四、薪资中位数
+| 方向 | 中位薪资（月薪） | 样本数 |
+|------|----------------:|------:|
+{%- for s in salaries %}
+| {{ s.label }} | {{ s.median_text }} | {{ s.sample_count }} |
+{%- endfor %}
+
+### 五、技能热度榜 Top 15
+| 排名 | 技能 | 出现次数 |
+|------|------|--------:|
+{%- for sk in skills %}
+| {{ loop.index }} | {{ sk.name }} | {{ sk.count }} |
+{%- endfor %}
+
+### 六、技能洞察
+{{ analysis.skill_insight if analysis and analysis.skill_insight else default_skill }}
+
+### 七、学习建议
+{{ analysis.learning_advice if analysis and analysis.learning_advice else default_advice }}
+
+---
+
+*报告由系统自动生成，数据来源为公开岗位样本，仅供参考。*

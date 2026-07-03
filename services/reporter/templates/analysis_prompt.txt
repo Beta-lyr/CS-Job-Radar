@@ -1,0 +1,29 @@
+你是一个计算机专业就业趋势分析师。请根据以下数据生成分析段落。
+
+## 当周数据（{{ week_start }} ~ {{ week_end }}）
+- 有效岗位总数：{{ total_jobs }}
+- 覆盖技术方向数：{{ direction_count }}
+
+### 方向热度排行
+{% for d in directions %}
+- {{ d.label }}：{{ d.count }} 个岗位（环比 {{ d.change }}）
+{% endfor %}
+
+### 薪资中位数（月薪，仅有薪资样本的方向）
+{% for s in salaries %}
+- {{ s.label }}：{{ s.median_text }}（{{ s.sample_count }} 个样本）
+{% endfor %}
+
+### 技能热度 Top 15
+{% for sk in skills %}
+- {{ sk.name }}：{{ sk.count }} 次
+{% endfor %}
+
+请以 JSON 格式返回分析结果（不要用 markdown 代码块包裹，直接返回纯 JSON）：
+
+{
+  "trend_summary": "本周整体趋势总结。包括岗位总量变化、市场热度判断、最显著的变化方向。1-2 段，用中文。",
+  "direction_analysis": "各方向对比解读。分析热度前 5 方向的供需特点、薪资竞争力、适合什么背景的学生。对比有明显涨跌的方向并推测原因。1-2 段，用中文。",
+  "skill_insight": "技能需求洞察。分析技能的集中度、哪些技能跨方向通用、哪些是某一方向的特有技能。结合方向数据说明技能-方向的关联关系。1-2 段，用中文。",
+  "learning_advice": "给计算机专业学生的学习建议。基于以上数据给出 2-3 条具体、可操作的暑期/学期学习规划建议。每条建议独立成段。用中文。"
+}

@@ -12,6 +12,11 @@ from db.migrate import auto_migrate
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from services.crawler.storage.db import get_session
+from services.reporter.analyzer import generate_analysis, is_llm_configured
+
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+_REPO_ROOT = os.path.abspath(os.path.join(_THIS_DIR, "..", ".."))
+_TEMPLATE_DIR = os.path.join(_REPO_ROOT, "services", "reporter", "templates")
 
 DIRECTION_LABELS = {
     "java_backend": "Java 后端",
@@ -38,13 +43,8 @@ def get_report_range(session) -> tuple[date, date]:
     return start, end
 
 
-def run():
-    auto_migrate()
-    session = get_session()
-    week_start, week_end = get_report_range(session)
-    slug = f"{week_start.isoformat()}-to-{week_end.isoformat()}"
-
-    rows = session.execute(
+def _direction_counts(session, start: date, end: date) -> list:
+    return session.execute(
         text("""
             SELECT direction, COUNT(*)::int as total_jobs
             FROM jobs
@@ -55,14 +55,25 @@ def run():
             GROUP BY direction
             ORDER BY total_jobs DESC
         """),
-        {"start": week_start, "end": week_end},
+        {"start": start, "end": end},
     ).fetchall()
 
+
+def query_current_week(session, start: date, end: date) -> dict:
+    rows = _direction_counts(session, start, end)
     total_jobs = sum(r.total_jobs for r in rows)
     direction_count = len(rows)
-    top_dir = DIRECTION_LABELS.get(rows[0].direction, rows[0].direction) if rows else "N/A"
 
-    salary_data = session.execute(
+    directions = [
+        {
+            "direction": r.direction,
+            "label": DIRECTION_LABELS.get(r.direction, r.direction),
+            "count": r.total_jobs,
+        }
+        for r in rows
+    ]
+
+    salary_rows = session.execute(
         text("""
             SELECT
                 direction,
@@ -77,8 +88,19 @@ def run():
             GROUP BY direction
             ORDER BY median_salary DESC
         """),
-        {"start": week_start, "end": week_end},
+        {"start": start, "end": end},
     ).fetchall()
+
+    salaries = []
+    for r in salary_rows:
+        label = DIRECTION_LABELS.get(r.direction, r.direction)
+        salaries.append({
+            "direction": r.direction,
+            "label": label,
+            "median": r.median_salary or 0,
+            "median_text": f"{int(r.median_salary / 1000)}K" if r.median_salary else "N/A",
+            "sample_count": r.salary_sample_count,
+        })
 
     skill_rows = session.execute(
         text("""
@@ -93,57 +115,107 @@ def run():
             ORDER BY cnt DESC
             LIMIT 15
         """),
-        {"start": week_start, "end": week_end},
+        {"start": start, "end": end},
     ).fetchall()
 
-    md = f"""# 计算机学生技术岗位趋势报告
-## {week_start.isoformat()} ~ {week_end.isoformat()}
+    skills = [{"name": r.skill_name, "count": r.cnt} for r in skill_rows]
 
-### 一、本周总览
-- **有效岗位样本**：{total_jobs}
-- **覆盖技术方向**：{direction_count}
-- **本周热门方向**：{top_dir}
-
-### 二、方向热度排行
-| 排名 | 方向 | 岗位数量 |
-|------|------|---------|
-"""
-    for i, r in enumerate(rows, 1):
-        label = DIRECTION_LABELS.get(r.direction, r.direction)
-        md += f"| {i} | {label} | {r.total_jobs} |\n"
-
-    md += "\n### 三、薪资中位数\n"
-    md += "| 方向 | 中位薪资（月薪） |\n|------|----------------:|\n"
-    for r in salary_data:
-        label = DIRECTION_LABELS.get(r.direction, r.direction)
-        salary = f"{int(r.median_salary / 1000)}K" if r.median_salary else "N/A"
-        md += f"| {label} | {salary}（{r.salary_sample_count} 个公开薪资样本） |\n"
-
-    md += "\n### 四、技能热度榜 Top 15\n"
-    md += "| 排名 | 技能 | 出现次数 |\n|------|------|--------:|\n"
-    for i, s in enumerate(skill_rows, 1):
-        md += f"| {i} | {s.skill_name} | {s.cnt} |\n"
-
-    md += "\n### 五、给学生的学习建议\n"
-    md += "- 关注市场趋势，但不要盲目追热点，选择与自身基础匹配的方向。\n"
-    md += "- 高频技能不等于必须全部掌握，区分必备技能和加分技能。\n"
-    md += "- 将学习成果转化为可展示的项目，而非停留在\u201c我知道这个技术\u201d的层面。\n"
-
-    md += "\n---\n*报告由系统自动生成，数据来源为公开岗位样本，仅供参考。*\n"
-
-    report_data = {
+    return {
         "total_jobs": total_jobs,
         "direction_count": direction_count,
-        "top_direction": top_dir,
-        "directions": [{"direction": r.direction, "jobs": r.total_jobs} for r in rows],
-        "salary_directions": [
-            {
-                "direction": r.direction,
-                "median_salary": r.median_salary,
-                "salary_sample_count": r.salary_sample_count,
-            }
-            for r in salary_data
-        ],
+        "directions": directions,
+        "salaries": salaries,
+        "skills": skills,
+    }
+
+
+def query_previous_week(session, start: date, end: date) -> dict:
+    prev_end = start - timedelta(days=1)
+    prev_start = prev_end - timedelta(days=6)
+    rows = _direction_counts(session, prev_start, prev_end)
+    direction_map = {r.direction: r.total_jobs for r in rows}
+    return {"directions": direction_map}
+
+
+def _calc_change(curr: int, prev: int | None) -> str:
+    if prev is None or prev == 0:
+        return "-"
+    delta = (curr - prev) / prev * 100
+    return f"{delta:+.0f}%"
+
+
+def build_report_data(current: dict, previous: dict) -> dict:
+    prev_map = previous.get("directions", {})
+    for d in current["directions"]:
+        prev_count = prev_map.get(d["direction"])
+        d["change"] = _calc_change(d["count"], prev_count)
+
+    if current["directions"]:
+        current["top_direction"] = current["directions"][0]["label"]
+    else:
+        current["top_direction"] = "N/A"
+
+    return current
+
+
+def generate_report_markdown(data: dict, analysis, week_start: date, week_end: date) -> str:
+    from jinja2 import Environment, FileSystemLoader
+
+    env = Environment(loader=FileSystemLoader(_TEMPLATE_DIR))
+    template = env.get_template("weekly_report.md.j2")
+
+    default_summary = (
+        f"本周共采集 {data['total_jobs']} 条有效岗位样本，"
+        f"覆盖 {data['direction_count']} 个技术方向，"
+        f"{data['top_direction']} 岗位数量最多。"
+    )
+
+    dir_labels = ", ".join(d["label"] for d in data["directions"][:5])
+    default_direction = (
+        f"本周岗位主要集中在 {dir_labels} 等方向。"
+        f"建议学生关注岗位数量较多且增长明显的方向，结合自身专业基础选择深耕领域。"
+    )
+
+    top_skills = ", ".join(s["name"] for s in data["skills"][:5])
+    default_skill = (
+        f"本周需求最高的技能为 {top_skills}。"
+        f"这些技能横跨多个技术方向，体现了企业在招聘中对工程能力的通用要求。"
+    )
+
+    default_advice = (
+        '- 关注市场趋势，但不要盲目追热点，选择与自身基础匹配的方向。\n'
+        '- 高频技能不等于必须全部掌握，区分必备技能和加分技能。\n'
+        '- 将学习成果转化为可展示的项目，而非停留在"我知道这个技术"的层面。'
+    )
+
+    return template.render(
+        week_start=week_start.isoformat(),
+        week_end=week_end.isoformat(),
+        total_jobs=data["total_jobs"],
+        direction_count=data["direction_count"],
+        directions=data["directions"],
+        salaries=data["salaries"],
+        skills=data["skills"],
+        analysis=analysis,
+        default_summary=default_summary,
+        default_direction=default_direction,
+        default_skill=default_skill,
+        default_advice=default_advice,
+    )
+
+
+def save_report(session, markdown: str, data: dict, week_start: date, week_end: date):
+    slug = f"{week_start.isoformat()}-to-{week_end.isoformat()}"
+    title = f"计算机学生技术岗位趋势报告 {week_start.isoformat()} ~ {week_end.isoformat()}"
+    summary = data.get("top_direction", "")
+
+    report_data = {
+        "total_jobs": data["total_jobs"],
+        "direction_count": data["direction_count"],
+        "top_direction": data["top_direction"],
+        "directions": data["directions"],
+        "salaries": data["salaries"],
+        "skills": data["skills"],
     }
 
     session.execute(
@@ -161,17 +233,39 @@ def run():
         {
             "start": week_start,
             "end": week_end,
-            "title": f"计算机学生技术岗位趋势报告 {week_start.isoformat()} ~ {week_end.isoformat()}",
+            "title": title,
             "slug": slug,
-            "summary": f"本周共 {total_jobs} 条样本，覆盖 {direction_count} 个方向，{top_dir} 岗位最多。",
-            "content": md,
+            "summary": summary,
+            "content": markdown,
             "rdata": json.dumps(report_data, ensure_ascii=False),
         },
     )
-
     session.commit()
-    session.close()
-    print(f"Weekly report generated: {slug} ({total_jobs} jobs, {direction_count} directions).")
+    return slug
+
+
+def run():
+    auto_migrate()
+    session = get_session()
+
+    try:
+        week_start, week_end = get_report_range(session)
+
+        current = query_current_week(session, week_start, week_end)
+        previous = query_previous_week(session, week_start, week_end)
+        report_data = build_report_data(current, previous)
+        report_data["week_start"] = week_start.isoformat()
+        report_data["week_end"] = week_end.isoformat()
+
+        analysis = generate_analysis(report_data) if is_llm_configured() else None
+
+        markdown = generate_report_markdown(report_data, analysis, week_start, week_end)
+        slug = save_report(session, markdown, report_data, week_start, week_end)
+
+        llm_status = "with AI" if analysis else "without AI"
+        print(f"[report] {slug}: {report_data['total_jobs']} jobs, {report_data['direction_count']} directions {llm_status}")
+    finally:
+        session.close()
 
 
 if __name__ == "__main__":
