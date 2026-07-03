@@ -1,4 +1,4 @@
-"""每周报告脚本：先自动迁移 -> 读取上周统计 -> 生成 Markdown 报告 -> 写入 weekly_reports。"""
+"""每周报告脚本：先自动迁移 -> 读取最近 7 天岗位样本 -> 生成 Markdown 报告。"""
 
 import json
 import os
@@ -20,37 +20,38 @@ DIRECTION_LABELS = {
     "android": "Android 开发",
     "ai_application": "AI 应用开发",
     "test_development": "测试开发",
+    "cpp_system": "C++ / 系统开发",
+    "embedded": "嵌入式开发",
+    "hardware": "硬件开发",
+    "semiconductor": "半导体 / 芯片",
+    "communication": "通信网络",
+    "it_support_implementation": "实施 / 技术支持",
+    "product_manager": "技术产品",
+    "unknown": "未归类",
 }
 
 
-def get_week_range() -> tuple:
-    today = date.today()
-    monday = today - timedelta(days=today.weekday())
-    last_monday = monday - timedelta(days=7)
-    last_sunday = monday - timedelta(days=1)
-    return last_monday, last_sunday
+def get_report_range(session) -> tuple[date, date]:
+    row = session.execute(text("SELECT MAX(fetched_at)::date AS max_date FROM jobs")).fetchone()
+    end = row.max_date if row and row.max_date else date.today()
+    start = end - timedelta(days=6)
+    return start, end
 
 
 def run():
     auto_migrate()
     session = get_session()
-    week_start, week_end = get_week_range()
+    week_start, week_end = get_report_range(session)
     slug = f"{week_start.isoformat()}-to-{week_end.isoformat()}"
-
-    existing = session.execute(
-        text("SELECT id FROM weekly_reports WHERE slug = :slug"),
-        {"slug": slug},
-    ).fetchone()
-    if existing:
-        print(f"Report for {week_start} ~ {week_end} already exists. Skipping.")
-        session.close()
-        return
 
     rows = session.execute(
         text("""
-            SELECT direction, SUM(job_count) as total_jobs
-            FROM daily_direction_stats
-            WHERE stat_date >= :start AND stat_date <= :end
+            SELECT direction, COUNT(*)::int as total_jobs
+            FROM jobs
+            WHERE fetched_at >= :start
+              AND fetched_at < (:end + INTERVAL '1 day')
+              AND direction IS NOT NULL
+              AND direction != 'unknown'
             GROUP BY direction
             ORDER BY total_jobs DESC
         """),
@@ -63,11 +64,18 @@ def run():
 
     salary_data = session.execute(
         text("""
-            SELECT direction, AVG(salary_median) as avg_salary
-            FROM daily_direction_stats
-            WHERE stat_date >= :start AND stat_date <= :end AND salary_median IS NOT NULL
+            SELECT
+                direction,
+                PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY salary_median_monthly)::int as median_salary,
+                COUNT(salary_median_monthly)::int as salary_sample_count
+            FROM jobs
+            WHERE fetched_at >= :start
+              AND fetched_at < (:end + INTERVAL '1 day')
+              AND direction IS NOT NULL
+              AND direction != 'unknown'
+              AND salary_median_monthly IS NOT NULL
             GROUP BY direction
-            ORDER BY avg_salary DESC
+            ORDER BY median_salary DESC
         """),
         {"start": week_start, "end": week_end},
     ).fetchall()
@@ -77,7 +85,10 @@ def run():
             SELECT js.skill_name, COUNT(*) as cnt
             FROM job_skills js
             JOIN jobs j ON js.job_id = j.id
-            WHERE j.publish_date >= :start AND j.publish_date <= :end
+            WHERE j.fetched_at >= :start
+              AND j.fetched_at < (:end + INTERVAL '1 day')
+              AND j.direction IS NOT NULL
+              AND j.direction != 'unknown'
             GROUP BY js.skill_name
             ORDER BY cnt DESC
             LIMIT 15
@@ -105,8 +116,8 @@ def run():
     md += "| 方向 | 中位薪资（月薪） |\n|------|----------------:|\n"
     for r in salary_data:
         label = DIRECTION_LABELS.get(r.direction, r.direction)
-        salary = f"{int(r.avg_salary / 1000)}K" if r.avg_salary else "N/A"
-        md += f"| {label} | {salary} |\n"
+        salary = f"{int(r.median_salary / 1000)}K" if r.median_salary else "N/A"
+        md += f"| {label} | {salary}（{r.salary_sample_count} 个公开薪资样本） |\n"
 
     md += "\n### 四、技能热度榜 Top 15\n"
     md += "| 排名 | 技能 | 出现次数 |\n|------|------|--------:|\n"
@@ -125,12 +136,27 @@ def run():
         "direction_count": direction_count,
         "top_direction": top_dir,
         "directions": [{"direction": r.direction, "jobs": r.total_jobs} for r in rows],
+        "salary_directions": [
+            {
+                "direction": r.direction,
+                "median_salary": r.median_salary,
+                "salary_sample_count": r.salary_sample_count,
+            }
+            for r in salary_data
+        ],
     }
 
     session.execute(
         text("""
             INSERT INTO weekly_reports (week_start, week_end, title, slug, summary, content_markdown, report_data, generated_at, published_at)
             VALUES (:start, :end, :title, :slug, :summary, :content, :rdata, now(), now())
+            ON CONFLICT (slug) DO UPDATE SET
+                title = EXCLUDED.title,
+                summary = EXCLUDED.summary,
+                content_markdown = EXCLUDED.content_markdown,
+                report_data = EXCLUDED.report_data,
+                generated_at = now(),
+                published_at = now()
         """),
         {
             "start": week_start,
