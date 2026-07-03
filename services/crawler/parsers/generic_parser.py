@@ -135,7 +135,7 @@ class GenericParser(BaseParser):
             m = re.search(pat, text)
             if m:
                 return m.group(1).strip()
-        return ""
+        return "未公开"
 
     def _extract_education(self, text: str) -> str:
         patterns = [

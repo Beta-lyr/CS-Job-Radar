@@ -42,7 +42,7 @@ def calc_confidence(source_type: str, title: str, company: str, city: str, salar
         complete += 20
     if city:
         complete += 15
-    if salary:
+    if salary and not _is_undisclosed_salary(salary):
         complete += 15
     if description:
         complete += 20
@@ -53,3 +53,8 @@ def calc_confidence(source_type: str, title: str, company: str, city: str, salar
 
     confidence = src_score * 0.35 + fresh * 0.25 + complete * 0.25 + dir_score * 0.15
     return round(min(confidence, 100), 2)
+
+
+def _is_undisclosed_salary(salary: str) -> bool:
+    compact = "".join(str(salary or "").split()).lower()
+    return compact in {"未公开", "薪资未公开", "暂未公开", "暂无", "无", "null", "none", "unknown", "不公开", "保密"}

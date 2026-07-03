@@ -19,9 +19,9 @@ from services.analyzer.normalizers.city_normalizer import normalize_city as norm
 
 
 def parse_salary(text: str) -> dict:
-    if not text:
-        return {"type": "unknown"}
-    text = text.strip()
+    text = normalize_salary_text(text)
+    if _is_undisclosed_salary(text):
+        return {"type": "undisclosed"}
     if text == "面议":
         return {"type": "negotiable"}
 
@@ -50,6 +50,33 @@ def parse_salary(text: str) -> dict:
         return {"type": "intern_daily"}
 
     return {"type": "unknown"}
+
+
+def normalize_salary_text(text: str) -> str:
+    if text is None:
+        return "未公开"
+    text = str(text).strip()
+    if _is_undisclosed_salary(text):
+        return "未公开"
+    return text
+
+
+def _is_undisclosed_salary(text: str) -> bool:
+    if not text:
+        return True
+    compact = re.sub(r"\s+", "", str(text).strip().lower())
+    return compact in {
+        "未公开",
+        "薪资未公开",
+        "暂未公开",
+        "暂无",
+        "无",
+        "null",
+        "none",
+        "unknown",
+        "不公开",
+        "保密",
+    }
 
 
 def normalize_city(raw: str) -> tuple:
@@ -147,7 +174,7 @@ def run():
         title = row.raw_title or ""
         company = row.raw_company or ""
         raw_city = row.raw_city or ""
-        raw_salary = row.raw_salary or ""
+        raw_salary = normalize_salary_text(row.raw_salary)
         raw_edu = row.raw_education or ""
         raw_exp = row.raw_experience or ""
         desc = row.raw_description or ""

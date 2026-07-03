@@ -430,7 +430,7 @@ def _format_salary(low, high) -> str:
         low_f = float(low or 0)
         high_f = float(high or 0)
     except (TypeError, ValueError):
-        return ""
+        return "未公开"
     if low_f <= 0 and high_f <= 0:
         return "面议"
     if low_f > 0 and high_f > 0:
