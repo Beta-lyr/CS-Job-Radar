@@ -218,9 +218,9 @@
     "city": "深圳",
     "industry": "信息技术",
     "parser_type": "company",
-    "fetcher_type": "playwright",
+    "fetcher_type": "static",
     "risk_level": "low",
-    "enabled": false,
+    "enabled": true,
     "crawl_interval_hours": 48
   },
   {
