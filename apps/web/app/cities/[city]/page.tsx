@@ -5,7 +5,12 @@ import { getDirectionLabel, getDirectionSkills, getChangeLabel, formatSalary, fo
 
 export async function generateStaticParams() {
   const cities = await getAllCities()
-  return cities.map((city) => ({ city }))
+  const params = new Set<string>()
+  for (const city of cities) {
+    params.add(city)
+    params.add(encodeURIComponent(city))
+  }
+  return Array.from(params).map((city) => ({ city }))
 }
 
 export default async function CityPage({
