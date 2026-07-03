@@ -85,6 +85,8 @@ def run():
             except Exception as e:
                 traceback.print_exc()
                 session.rollback()
+                session.close()
+                session = get_session()
                 r = {"inserted": 0, "skipped": 0, "error": str(e)[:500]}
 
             elapsed = time.time() - t0
