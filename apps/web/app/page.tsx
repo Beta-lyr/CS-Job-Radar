@@ -62,7 +62,7 @@ export default async function HomePage() {
             <div className="report-preview-head">
               <div className="report-preview-title">
                 <strong>本周方向观察摘要</strong>
-                <span>样本口径：近 7 天公开岗位信息</span>
+                <span>样本口径：近 30 天公开岗位信息</span>
               </div>
               <span className="report-badge">已更新</span>
             </div>
@@ -92,13 +92,13 @@ export default async function HomePage() {
                 <tbody>
                   {directions.length > 0 ? (
                     directions.slice(0, 3).map((d, i) => {
-                      const change = getChangeLabel(d.jobCount, d.friendlyCount, d.salaryMedian)
+                      const change = getChangeLabel(d.jobCount, d.friendlyCount, d.salaryMedian, d.salarySampleCount)
                       return (
                         <tr key={d.direction}>
                           <td><span className="rank-pill">{i + 1}</span></td>
                           <td><span className="direction-name">{getDirectionLabel(d.direction)}</span></td>
                           <td><span className={`change-${change.type}`}>{change.label}</span></td>
-                          <td>{formatSalary(d.salaryMedian)}</td>
+                          <td>{formatSalary(d.salaryMedian)}<small style={{ display: "block", fontSize: 11, color: "var(--muted)", marginTop: 2 }}>{d.salarySampleCount ? `${d.salarySampleCount}个样本` : "薪资未公开"}</small></td>
                         </tr>
                       )
                     })
@@ -163,7 +163,7 @@ export default async function HomePage() {
                 <div className="panel-head">
                   <div>
                     <h3>本周方向排行</h3>
-                    <p className="panel-subtitle">基于近 7 天公开岗位样本统计</p>
+                    <p className="panel-subtitle">基于近 30 天公开岗位样本统计</p>
                   </div>
                   <span className="small-note">更新时间：{today.toISOString().slice(0, 10)}</span>
                 </div>
@@ -171,7 +171,7 @@ export default async function HomePage() {
                 <div className="direction-list">
                   {directions.length > 0 ? (
                     directions.map((d, i) => {
-                      const change = getChangeLabel(d.jobCount, d.friendlyCount, d.salaryMedian)
+                      const change = getChangeLabel(d.jobCount, d.friendlyCount, d.salaryMedian, d.salarySampleCount)
                       return (
                         <Link key={d.direction} href={`/directions/${d.direction}`} className="direction-row">
                           <div className={`direction-index${i < 3 ? " top" : ""}`}>{i + 1}</div>
@@ -186,7 +186,7 @@ export default async function HomePage() {
                             <div className="bar-label"><span>机会指数</span><span>{d.opportunityIndex}</span></div>
                             <div className="bar-track"><span className="bar-fill" style={{ width: `${d.opportunityIndex}%` }}></span></div>
                           </div>
-                          <div className="salary">{formatSalary(d.salaryMedian)}<small>中位数</small></div>
+                          <div className="salary">{formatSalary(d.salaryMedian)}<small>{d.salarySampleCount ? `${d.salarySampleCount}个样本` : "薪资未公开"}</small></div>
                         </Link>
                       )
                     })

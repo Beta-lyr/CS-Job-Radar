@@ -9,6 +9,7 @@ export async function getDirectionOverview(direction: string): Promise<Direction
         COUNT(*)::int AS job_count,
         COUNT(*) FILTER (WHERE is_fresh_graduate_friendly)::int AS friendly_count,
         COUNT(DISTINCT city)::int AS city_count,
+        COUNT(salary_median_monthly)::int AS salary_sample_count,
         PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY salary_median_monthly)::int AS salary_median,
         PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY salary_median_monthly)::int AS salary_p25,
         PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY salary_median_monthly)::int AS salary_p75
@@ -23,6 +24,7 @@ export async function getDirectionOverview(direction: string): Promise<Direction
       jobCount: row.job_count,
       friendlyCount: row.friendly_count,
       cityCount: row.city_count,
+      salarySampleCount: row.salary_sample_count,
       salaryMedian: row.salary_median,
       salaryP25: row.salary_p25,
       salaryP75: row.salary_p75,

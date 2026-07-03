@@ -53,7 +53,7 @@ export default async function CityPage({
           <div className="stat-card">
             <span>本周岗位样本</span>
             <strong>{formatNumber(overview.jobCount)}</strong>
-            <p>近 7 天公开岗位数量。</p>
+            <p>近 30 天公开岗位数量。</p>
           </div>
           <div className="stat-card">
             <span>覆盖技术方向</span>
@@ -89,7 +89,7 @@ export default async function CityPage({
             {directions.length > 0 ? (
               <div className="direction-list">
                 {directions.map((d, i) => {
-                  const change = getChangeLabel(d.jobCount, d.friendlyCount, d.salaryMedian)
+                  const change = getChangeLabel(d.jobCount, d.friendlyCount, d.salaryMedian, d.salarySampleCount)
                   return (
                     <Link key={d.direction} href={`/directions/${d.direction}`} className="direction-row">
                       <div className={`direction-index${i < 3 ? " top" : ""}`}>{i + 1}</div>

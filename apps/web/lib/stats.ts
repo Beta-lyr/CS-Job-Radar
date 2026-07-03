@@ -32,6 +32,7 @@ export async function getDirectionStats(): Promise<DirectionStat[]> {
         direction,
         COUNT(*)::int AS job_count,
         COUNT(*) FILTER (WHERE is_fresh_graduate_friendly)::int AS friendly_count,
+        COUNT(salary_median_monthly)::int AS salary_sample_count,
         PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY salary_median_monthly)::int AS salary_median
       FROM jobs
       WHERE fetched_at >= CURRENT_DATE - INTERVAL '30 days'
@@ -40,10 +41,11 @@ export async function getDirectionStats(): Promise<DirectionStat[]> {
       ORDER BY COUNT(*) DESC
     `)
     const maxJobs = Math.max(...result.rows.map((r: { job_count: number }) => r.job_count), 1)
-    return result.rows.map((row: { direction: string; job_count: number; friendly_count: number; salary_median: number | null }) => ({
+    return result.rows.map((row: { direction: string; job_count: number; friendly_count: number; salary_sample_count: number; salary_median: number | null }) => ({
       direction: row.direction,
       jobCount: row.job_count,
       friendlyCount: row.friendly_count,
+      salarySampleCount: row.salary_sample_count,
       salaryMedian: row.salary_median,
       topSkills: [],
       opportunityIndex: Math.round((row.job_count / maxJobs) * 100),

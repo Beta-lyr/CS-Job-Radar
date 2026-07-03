@@ -53,7 +53,7 @@ export default async function DirectionDetailPage({
           <div className="stat-card">
             <span>本周岗位样本</span>
             <strong>{formatNumber(overview.jobCount)}</strong>
-            <p>近 7 天公开岗位数量。</p>
+            <p>近 30 天公开岗位数量。</p>
           </div>
           <div className="stat-card">
             <span>应届友好占比</span>
@@ -63,7 +63,7 @@ export default async function DirectionDetailPage({
           <div className="stat-card">
             <span>中位薪资</span>
             <strong>{formatSalary(overview.salaryMedian)}</strong>
-            <p>{overview.salaryP25 ? `P25: ${formatSalary(overview.salaryP25)}` : ""}{overview.salaryP75 ? ` / P75: ${formatSalary(overview.salaryP75)}` : ""}</p>
+            <p>{overview.salarySampleCount ? `基于 ${overview.salarySampleCount} 个薪资样本` : "暂无公开薪资数据"}{overview.salaryP25 ? ` / P25: ${formatSalary(overview.salaryP25)}` : ""}{overview.salaryP75 ? ` / P75: ${formatSalary(overview.salaryP75)}` : ""}</p>
           </div>
           <div className="stat-card">
             <span>覆盖城市</span>

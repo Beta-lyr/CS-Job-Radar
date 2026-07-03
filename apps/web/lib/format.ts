@@ -38,8 +38,8 @@ export function getDirectionSkills(direction: string): string {
   return DIRECTION_SKILLS[direction] || ""
 }
 
-export function getChangeLabel(jobCount: number, friendlyCount: number, salaryMedian: number | null): { label: string; type: "up" | "stable" | "risk" } {
-  if (salaryMedian && salaryMedian > 18000) {
+export function getChangeLabel(jobCount: number, friendlyCount: number, salaryMedian: number | null, salarySampleCount?: number): { label: string; type: "up" | "stable" | "risk" } {
+  if (salaryMedian && (salarySampleCount ?? 0) >= 3 && salaryMedian > 18000) {
     return { label: "上升", type: "up" }
   }
   if (friendlyCount > 0 && (friendlyCount / jobCount) > 0.3) {
@@ -49,11 +49,8 @@ export function getChangeLabel(jobCount: number, friendlyCount: number, salaryMe
 }
 
 export function formatSalary(median: number | null): string {
-  if (!median) return "—"
-  if (median >= 1000) {
-    return `${Math.round(median / 1000)}K`
-  }
-  return `${median}K`
+  if (median === null || median < 1000) return "样本不足"
+  return `${Math.round(median / 1000)}K`
 }
 
 export function formatNumber(n: number): string {
