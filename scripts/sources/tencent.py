@@ -47,6 +47,9 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
     try:
         posts = []
         seen_post_ids = set()
+        total_dup = 0
+        total_filt = 0
+        pages_done = 0
 
         for page in range(1, MAX_PAGES + 1):
             data = _fetch_positions(http, page)
@@ -74,10 +77,11 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
                 if len(posts) >= MAX_POSTS_TOTAL:
                     break
 
-            print(
-                f"  page {page}: {len(items)} positions, "
-                f"{accepted} accepted, {duplicate} duplicate, {filtered} filtered"
-            )
+            pages_done += 1
+            total_dup += duplicate
+            total_filt += filtered
+            print(f"[source:tencent] p{pages_done} fetch={len(items)} accept={accepted} dup={duplicate} filt={filtered}")
+
             if len(posts) >= MAX_POSTS_TOTAL:
                 break
 
@@ -85,8 +89,10 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
             if count and page * PAGE_SIZE >= count:
                 break
 
-        print(f"  total accepted positions: {len(posts)}")
+        print(f"[source:tencent] list done: pages={pages_done} accept={len(posts)} dup={total_dup} filt={total_filt}")
 
+        detail_errors = 0
+        detail_processed = 0
         for item in posts:
             try:
                 detail = _fetch_detail(http, _clean_text(item.get("postId")))
@@ -110,10 +116,14 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
                         result["inserted"] += 1
                     else:
                         result["skipped"] += 1
+                detail_processed += 1
             except Exception as exc:
                 _rollback_session(session)
                 result["skipped"] += 1
-                print(f"  detail skipped: {exc}")
+                detail_errors += 1
+                print(f"[source:tencent] detail error: {exc}")
+
+        print(f"[source:tencent] detail done: processed={detail_processed} insert={result['inserted']} error={detail_errors}")
 
     except Exception as exc:
         _rollback_session(session)

@@ -59,22 +59,22 @@ def run():
     try:
         for src in sources:
             sid, slug, name, list_url, fetcher_type = src
-            print(f"[{name}] Crawling {list_url} ...")
+            print(f"[crawl] {name}: crawling {list_url}")
 
             if not list_url:
-                print(f"[{name}] Skipped (no URL)")
+                print(f"[crawl] {name}: skip (no URL)")
                 safe_log_crawl(session, sid, "failed", 0, 0, 0, "No list_url configured")
                 continue
 
             if not slug:
-                print(f"  -> skipped (no slug configured)")
+                print(f"[crawl] {name}: skip (no slug)")
                 safe_log_crawl(session, sid, "failed", 0, 0, 0, "No slug configured in sources table")
                 continue
 
             script = load_source_script(slug)
 
             if not script:
-                print(f"  -> skipped (no source script at scripts/sources/{slug}.py)")
+                print(f"[crawl] {name}: skip (no script at scripts/sources/{slug}.py)")
                 safe_log_crawl(session, sid, "failed", 0, 0, 0, f"Source script not found: sources/{slug}.py")
                 continue
 
@@ -97,10 +97,11 @@ def run():
             fcount = r.get("inserted", 0) + r.get("skipped", 0)
             safe_log_crawl(session, sid, status, fcount, r.get("inserted", 0), r.get("skipped", 0), r.get("error", ""))
 
-            print(f"  -> inserted={r.get('inserted', 0)} skipped={r.get('skipped', 0)} elapsed={elapsed:.1f}s {'error=' + r['error'] if r.get('error') else ''}")
+            error_part = f" error='{r['error']}'" if r.get('error') else ""
+            print(f"[crawl] {name}: insert={r.get('inserted', 0)} skip={r.get('skipped', 0)}{error_part} | {elapsed:.1f}s")
 
         total_elapsed = time.time() - t0_total
-        print(f"Done. Sources: {len(sources)}, Inserted: {total_inserted}, Skipped: {total_skipped}, Total: {total_elapsed:.1f}s.")
+        print(f"[crawl] done: sources={len(sources)} insert={total_inserted} skip={total_skipped} | {total_elapsed:.1f}s")
     finally:
         session.close()
 

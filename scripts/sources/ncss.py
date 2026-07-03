@@ -101,6 +101,8 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
         seen: set[str] = set()
         rows = []
         filtered_count = 0
+        total_pages = 0
+        total_dup = 0
 
         for query in _build_query_plan():
             label = query["label"]
@@ -112,10 +114,12 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
 
                 accepted, duplicate_count, query_filtered = _collect_page_jobs(jobs, seen, rows)
                 filtered_count += query_filtered
+                total_pages += 1
+                total_dup += duplicate_count
 
                 print(
-                    f"  {label} page {page}: "
-                    f"{len(jobs)} jobs, {accepted} accepted, {duplicate_count} duplicate"
+                    f"[source:ncss] {label} p{total_pages} "
+                    f"fetch={len(jobs)} accept={accepted} dup={duplicate_count} filt={query_filtered}"
                 )
                 if len(rows) >= MAX_JOBS_TOTAL:
                     break
@@ -127,19 +131,23 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
             if len(rows) >= MAX_JOBS_TOTAL:
                 break
 
-        print(f"  total accepted jobs: {len(rows)}, filtered out: {filtered_count}")
+        print(f"[source:ncss] list done: pages={total_pages} accept={len(rows)} dup={total_dup} filt={filtered_count}")
 
+        detail_errors = 0
+        detail_processed = 0
         for item in rows:
             try:
                 job = _build_job(http, item)
                 if not job.get("raw_title"):
                     result["skipped"] += 1
+                    detail_processed += 1
                     continue
                 if not is_relevant_cs_job(
                     title=job.get("raw_title", ""),
                     description=job.get("raw_description", ""),
                 ):
                     filtered_count += 1
+                    detail_processed += 1
                     continue
 
                 detail_url = job["source_url"]
@@ -154,10 +162,14 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
                     result["inserted"] += 1
                 else:
                     result["skipped"] += 1
+                detail_processed += 1
             except Exception as exc:
                 _rollback_session(session)
                 result["skipped"] += 1
-                print(f"  detail skipped: {exc}")
+                detail_errors += 1
+                print(f"[source:ncss] detail error: {exc}")
+
+        print(f"[source:ncss] detail done: processed={detail_processed} insert={result['inserted']} error={detail_errors}")
 
     except Exception as exc:
         result["error"] = str(exc)[:500]

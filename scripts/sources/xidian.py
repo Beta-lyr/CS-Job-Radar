@@ -29,6 +29,7 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
 
     try:
         all_links: set[str] = set()
+        pages_done = 0
 
         for page in range(1, MAX_PAGES + 1):
             if len(all_links) >= MAX_JOBS_TOTAL:
@@ -39,7 +40,8 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
                 html = fetcher.fetch(page_url)
                 page_links = set(_extract_job_links(html))
                 new_links = page_links - all_links
-                print(f"  page {page}: {len(page_links)} links, {len(new_links)} new")
+                pages_done += 1
+                print(f"[source:xidian] p{pages_done} links={len(page_links)} new={len(new_links)}")
                 if not new_links and page > 1:
                     break
                 all_links.update(page_links)
@@ -49,10 +51,12 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
                 break
 
         detail_urls = list(all_links)[:MAX_JOBS_TOTAL]
-        print(f"  total unique links: {len(detail_urls)}")
+        print(f"[source:xidian] list done: pages={pages_done} links={len(detail_urls)}")
 
         batch_htmls = fetcher.fetch_batch(detail_urls) if hasattr(fetcher, "fetch_batch") else {}
 
+        detail_processed = 0
+        detail_errors = 0
         for detail_url in detail_urls:
             try:
                 detail_html = batch_htmls.get(detail_url, "")
@@ -60,6 +64,7 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
                     detail_html = fetcher.fetch(detail_url)
                 job = _parse_detail(detail_html, detail_url)
                 if not job.get("raw_title"):
+                    detail_processed += 1
                     continue
 
                 uh = url_hash(detail_url)
@@ -69,8 +74,12 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
                     result["inserted"] += 1
                 else:
                     result["skipped"] += 1
+                detail_processed += 1
             except Exception:
+                detail_errors += 1
                 continue
+
+        print(f"[source:xidian] detail done: processed={detail_processed} insert={result['inserted']} error={detail_errors}")
 
     except Exception as e:
         result["error"] = str(e)[:500]
