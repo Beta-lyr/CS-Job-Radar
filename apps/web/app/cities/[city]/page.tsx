@@ -5,7 +5,7 @@ import { getDirectionLabel, getDirectionSkills, getChangeLabel, formatSalary, fo
 
 export async function generateStaticParams() {
   const cities = await getAllCities()
-  return cities.map((city) => ({ city: encodeURIComponent(city) }))
+  return cities.map((city) => ({ city }))
 }
 
 export default async function CityPage({
