@@ -31,7 +31,21 @@ def get_engine():
     if _engine is None:
         if not DATABASE_URL:
             raise ValueError("DATABASE_URL environment variable is not set")
-        _engine = create_engine(DATABASE_URL, pool_size=5, max_overflow=10)
+        engine_options = {
+            "pool_size": 5,
+            "max_overflow": 10,
+            "pool_pre_ping": True,
+            "pool_recycle": int(os.getenv("DB_POOL_RECYCLE_SECONDS", "300")),
+            "pool_timeout": 30,
+        }
+        if DATABASE_URL.startswith(("postgresql://", "postgresql+psycopg2://")):
+            engine_options["connect_args"] = {
+                "keepalives": 1,
+                "keepalives_idle": int(os.getenv("DB_KEEPALIVES_IDLE", "30")),
+                "keepalives_interval": int(os.getenv("DB_KEEPALIVES_INTERVAL", "10")),
+                "keepalives_count": int(os.getenv("DB_KEEPALIVES_COUNT", "5")),
+            }
+        _engine = create_engine(DATABASE_URL, **engine_options)
     return _engine
 
 

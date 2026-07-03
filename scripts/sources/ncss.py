@@ -10,6 +10,7 @@ from html import unescape
 
 import requests
 from bs4 import BeautifulSoup
+from sqlalchemy.exc import SQLAlchemyError
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from services.crawler.utils.hash import content_hash, url_hash
@@ -26,6 +27,7 @@ PAGE_SIZE = 20
 MAX_JOBS_TOTAL = 1200
 REQUEST_TIMEOUT = 30
 MAX_RETRIES = 2
+MAX_DB_RETRIES = 2
 LIST_REQUEST_INTERVAL_SECONDS = 0.3
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -148,11 +150,12 @@ def crawl(session, source_id: int, list_url: str, fetcher) -> dict:
                     job.get("raw_city", ""),
                     job.get("raw_description", ""),
                 )
-                if _insert(session, source_id, job, uh, ch):
+                if _insert_with_retry(session, source_id, job, uh, ch):
                     result["inserted"] += 1
                 else:
                     result["skipped"] += 1
             except Exception as exc:
+                _rollback_session(session)
                 result["skipped"] += 1
                 print(f"  detail skipped: {exc}")
 
@@ -513,3 +516,31 @@ def _insert(session, source_id: int, job: dict, uh: str, ch: str) -> bool:
         },
     )
     return result.rowcount > 0
+
+
+def _insert_with_retry(session, source_id: int, job: dict, uh: str, ch: str) -> bool:
+    last_error = None
+    for attempt in range(MAX_DB_RETRIES + 1):
+        try:
+            inserted = _insert(session, source_id, job, uh, ch)
+            _commit_session(session)
+            return inserted
+        except SQLAlchemyError as exc:
+            last_error = exc
+            _rollback_session(session)
+            if attempt < MAX_DB_RETRIES:
+                time.sleep(1.5 * (attempt + 1))
+                continue
+    raise last_error
+
+
+def _commit_session(session) -> None:
+    commit = getattr(session, "commit", None)
+    if commit:
+        commit()
+
+
+def _rollback_session(session) -> None:
+    rollback = getattr(session, "rollback", None)
+    if rollback:
+        rollback()
