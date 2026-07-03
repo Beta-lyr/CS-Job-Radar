@@ -1,8 +1,8 @@
 import Link from "next/link"
-import { getAllReportSlugs, getReportBySlug } from "@/lib/reports"
-import { formatWeekRange } from "@/lib/format"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { getAllReportSlugs, getReportBySlug } from "@/lib/reports"
+import { formatWeekRange } from "@/lib/format"
 
 export const dynamicParams = false
 
@@ -25,14 +25,14 @@ export default async function ReportDetailPage({
       <main>
         <section className="hero" style={{ padding: "42px 0 24px" }}>
           <div className="container">
-            <Link href="/reports" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--muted)", fontSize: 13, fontWeight: 750, marginBottom: 16 }}>
-              ← 返回历史周报
+            <Link href="/reports" className="text-link">
+              返回历史周报
             </Link>
-            <h1 style={{ margin: 0, fontSize: "clamp(28px, 4vw, 42px)", lineHeight: 1.1, letterSpacing: "-0.055em", fontWeight: 850 }}>
+            <h1 style={{ margin: 0, fontSize: "clamp(28px, 4vw, 42px)", lineHeight: 1.1, fontWeight: 850 }}>
               报告未找到
             </h1>
             <p style={{ margin: "12px 0 0", color: "var(--muted)", fontSize: 14 }}>
-              该报告可能尚未生成或已被移除。
+              该报告可能尚未生成或已经被移除。
             </p>
             <div style={{ marginTop: 24 }}>
               <Link className="button-primary" href="/reports">查看所有报告</Link>
@@ -49,11 +49,11 @@ export default async function ReportDetailPage({
     <main>
       <section className="hero" style={{ padding: "42px 0 24px" }}>
         <div className="container">
-          <Link href="/reports" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--muted)", fontSize: 13, fontWeight: 750, marginBottom: 16 }}>
-            ← 返回历史周报
+          <Link href="/reports" className="text-link">
+            返回历史周报
           </Link>
           <div className="report-badge" style={{ marginBottom: 14, display: "inline-flex" }}>WEEKLY REPORT</div>
-          <h1 style={{ margin: 0, fontSize: "clamp(28px, 4vw, 42px)", lineHeight: 1.1, letterSpacing: "-0.055em", fontWeight: 850, maxWidth: 800 }}>
+          <h1 style={{ margin: 0, fontSize: "clamp(28px, 4vw, 42px)", lineHeight: 1.1, fontWeight: 850, maxWidth: 800 }}>
             {report.title}
           </h1>
           <p style={{ margin: "10px 0 0", color: "var(--muted)", fontSize: 14, fontWeight: 700 }}>
@@ -64,13 +64,22 @@ export default async function ReportDetailPage({
 
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="container">
-          <div className="article-card" style={{ padding: "32px 36px" }}>
+          <article className="article-card report-article">
             <div className="report-markdown">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  table: ({ children }) => (
+                    <div className="report-table-wrap">
+                      <table>{children}</table>
+                    </div>
+                  ),
+                }}
+              >
                 {markdown}
               </ReactMarkdown>
             </div>
-          </div>
+          </article>
 
           <div style={{ marginTop: 24, display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link className="button-primary" href="/">返回首页</Link>
