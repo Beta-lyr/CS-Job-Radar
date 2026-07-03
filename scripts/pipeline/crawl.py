@@ -80,6 +80,7 @@ def run():
             r = script.crawl(session, sid, list_url, fetcher)
         except Exception as e:
             traceback.print_exc()
+            session.rollback()
             r = {"inserted": 0, "skipped": 0, "error": str(e)[:500]}
 
         elapsed = time.time() - t0

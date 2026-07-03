@@ -91,7 +91,7 @@ def normalize_experience(raw: str) -> str:
 
 
 def _load_direction_rules() -> dict:
-    path = os.path.join(os.path.dirname(__file__), "..", "data", "direction-rules", "rules.json")
+    path = os.path.join(os.path.dirname(__file__), "..", "..", "data", "direction-rules", "rules.json")
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
