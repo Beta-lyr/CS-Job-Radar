@@ -1,6 +1,8 @@
 import Link from "next/link"
 import { getAllReportSlugs, getReportBySlug } from "@/lib/reports"
 import { formatWeekRange } from "@/lib/format"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 export const dynamicParams = false
 
@@ -41,11 +43,7 @@ export default async function ReportDetailPage({
     )
   }
 
-  const lines = report.contentMarkdown
-    ? report.contentMarkdown.split("\n").filter(Boolean)
-    : report.summary
-      ? report.summary.split("。").filter(Boolean).map((s) => s + "。")
-      : ["暂无详细内容。"]
+  const markdown = report.contentMarkdown || report.summary || "暂无详细内容。"
 
   return (
     <main>
@@ -67,12 +65,10 @@ export default async function ReportDetailPage({
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="container">
           <div className="article-card" style={{ padding: "32px 36px" }}>
-            <div style={{ display: "grid", gap: 18 }}>
-              {lines.map((line, i) => (
-                <p key={i} style={{ margin: 0, color: "var(--ink-2)", fontSize: 15, lineHeight: 2 }}>
-                  {line}
-                </p>
-              ))}
+            <div className="report-markdown">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {markdown}
+              </ReactMarkdown>
             </div>
           </div>
 
